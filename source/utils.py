@@ -54,3 +54,46 @@ def aplicar_estilo():
         """,
         unsafe_allow_html=True
     )
+
+
+
+    st.sidebar.markdown("""
+
+        <div align="center">
+            <a href="https://github.com/rafa-trindade/petstore-pipeline" target="_blank">
+                    <img style="border-radius: 7px;"
+                    src="https://img.shields.io/badge/petstore--pipeline-2B5482?style=for-the-badge&logo=github&logoColor=fff&logoWidth=40&scale=1" />
+            </a>             
+        </div>
+
+
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """
+        <div style="
+            position: fixed; 
+            bottom: 0;
+            left: 0;
+            right: 0; 
+            width: 100%; 
+            background-color: #c6d0d2; 
+            padding: 2.5px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: #2B5482; 
+            font-size: 14px;
+            gap: 8px
+        ">
+            <span>Developed by </span>
+            <a href="https://github.com/rafa-trindade" target="_blank">
+                <img style="border-radius: 4px;" src="https://img.shields.io/badge/-Rafael%20Trindade-2B5482?style=flat-square&logo=github&logoColor=E4E3E3" alt="GitHub Badge">
+            </a>
+        </div>
+
+        """,
+        unsafe_allow_html=True
+    )
