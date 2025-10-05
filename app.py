@@ -32,7 +32,7 @@ empresa = st.sidebar.selectbox(
 empresa_source[empresa]()
 
 col1_side, col2_side = st.sidebar.columns([2,1])
-col1_side.markdown('<h5 style="margin-bottom: -25px;">Quantidade Lojas:', unsafe_allow_html=True)
+col1_side.markdown('<h5 style="margin-bottom: -25px;">Registros:', unsafe_allow_html=True)
 col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;"> 533</h5>', unsafe_allow_html=True)
 col1_side.markdown('<h5 style="margin-bottom: -25px;">Última Extração:', unsafe_allow_html=True)
 col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;"> 05/10/25</h5>', unsafe_allow_html=True)
