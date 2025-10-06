@@ -29,7 +29,7 @@ O projeto inicia com as colunas abaixo, contendo dados  de endereços oriundos d
 
 ```mermaid
 graph TD
-    A[petstore-scraping<br>Bronze] --> B[petstore-etl<br>Silver e Gold<br>PostgreSQL]
+    A[petstore-scraping<br>Bronze] --> B[[petstore-etl<br>Silver e Gold<br>PostgreSQL]]
     B --> C[petstore-bi<br>BI e Dashboards]
 ```
 
