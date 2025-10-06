@@ -4,7 +4,7 @@ from config.db_config import engine
 CSV_PATH = "data/lojas.parquet"
 
 
-def download_to_parquet():
+def extract_to_parquet():
     
     query = "SELECT * FROM lojas_gold;"
     df_lojas = pd.read_sql(query, engine)
