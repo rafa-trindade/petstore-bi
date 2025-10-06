@@ -1,4 +1,6 @@
 # 🐾 petstore-bi
+[![Live Badge](https://img.shields.io/badge/-Live-2B5482?style=flat-square&logo=streamlit&logoColor=fff)](https://bi-petstore.streamlit.app/)
+
 
 Projeto responsável pela **análise e visualização de dados** de lojas e franquias do setor pet.
 
