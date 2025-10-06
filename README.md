@@ -29,8 +29,8 @@ O projeto inicia com as colunas abaixo, contendo dados  de endereços oriundos d
 
 ```mermaid
 graph TD
-    A[petstore-scraping<br>Bronze] --> B[petstore-etl<br>Silver e Gold]
-    B --> C[[petstore-bi<br>BI e Dashboards]]
+    A[petstore-scraping<br>Bronze] --> B[petstore-etl<br>Silver e Gold<br>PostgreSQL]
+    B --> C[petstore-bi<br>BI e Dashboards]
 ```
 
 ---
@@ -40,8 +40,8 @@ graph TD
 | Repositório | Função | Camada | Principais Tecnologias |
 | ----------------- | ----------------------------- | ------------------ | -------------------------------------- |
 | [`petstore-scraping`](https://github.com/rafa-trindade/petstore-scraping) | Coleta de Dados de Franquias | 🟤 Bronze | Selenium, BeautifulSoup4, lxml, pandas |
-| [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) | Limpeza, Padronização e Carga | ⚪ Silver / 🟡 Gold | pandas, brazilcep, requests, Nominatim |
-| [`petstore-bi`](https://github.com/rafa-trindade/petstore-etl) | BIo e Dashboards | 📊 BI | Streamlit, Plotly, pandas |
+| [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) | Limpeza, Padronização e Carga | ⚪ Silver / 🟡 Gold | pandas, brazilcep, requests, numpy, tabulate, SQLAlchemy, psycopg2-binary, python-dotenv |
+| [`petstore-bi`](https://github.com/rafa-trindade/petstore-bi) | BI e Dashboards | 📊 BI | Streamlit, Plotly, pandas |
 
 ---
 
