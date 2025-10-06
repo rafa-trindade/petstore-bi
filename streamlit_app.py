@@ -21,7 +21,7 @@ df_lojas = pd.read_parquet("data/lojas.parquet")
 
 empresas_unicas = df_lojas['empresa'].str.capitalize().sort_values().unique().tolist()
 opcoes = ["Geral"] + empresas_unicas
-
+    
 empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
 
 empresa_source = {
