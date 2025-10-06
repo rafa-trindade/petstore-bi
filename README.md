@@ -18,12 +18,23 @@ O `petstore-bi` consome os dados finais (Gold) gerados pelo `petstore-etl` e rea
 
 ---
 
-## 📊 Estrutura dos dados
+## 📊 Estrutura dos Dados e Metadados
 
-O projeto inicia com as colunas abaixo, contendo dados  de endereços oriundos do projeto [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl), que serão enriquecidos progressivamente com informações geográficas e analíticas para suporte a decisões de expansão.
+O projeto inicia com as colunas abaixo, contendo dados  de endereços oriundos do projeto [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) carregados no PostgreSQL, que serão enriquecidos progressivamente com informações geográficas e analíticas para suporte a decisões de expansão.
 
-| empresa | nome | logradouro | bairro | cidade | estado | cep | latitude | longitude |
-| ------- | ---- | ---------- | ------ | ------ | ------ | --- | -------- | --------- |
+| Coluna        | Tipo   | Descrição                   | Valores possíveis / Observações | Unidade | Camada          | Origem      | Última Atualização |
+| ------------- | ------ | --------------------------- | ------------------------------- | ------- | --------------- | ----------- | ------------------ |
+| id            | string | Identificador único da loja | Sequencial (autoincrement)      | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| empresa       | string | Nome da rede                | Petz, Cobasi, Petlove...        | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| nome          | string | Nome da loja                | -                               | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| logradouro    | string | Logradouro simplificado     | -                               | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| bairro        | string | Bairro                      | -                               | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| cidade        | string | Cidade                      | -                               | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| estado        | string | Sigla do estado             | SP, RJ, MG...                   | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| cep           | string | CEP normalizado             | 00000-000                       | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| latitude      | float  | Latitude geográfica         | -90 a 90                        | graus   | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| longitude     | float  | Longitude geográfica        | -180 a 180                      | graus   | Silver / Gold   | PostgreSQL  | 2025-10-06         |
+| data_extracao | date   | Data da extração do dado    | YYYY-MM-DD                      | -       | Silver / Gold   | PostgreSQL  | 2025-10-06         |
 
 ---
 
