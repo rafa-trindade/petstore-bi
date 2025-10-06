@@ -16,7 +16,7 @@ def geral_analysis():
 
     with col1:
         empresas_disp = sorted(df["empresa"].str.capitalize().sort_values().dropna().unique())
-        empresa_sel = st.multiselect("Empresa", empresas_disp, placeholder="Selecione uma Opção")
+        empresa_sel = st.multiselect("Empresa:", empresas_disp, placeholder="Selecione uma Opção")
 
     if empresa_sel:
         estados_disp = sorted(df[df["empresa"].isin(empresa_sel)]["estado"].dropna().unique())
@@ -24,7 +24,7 @@ def geral_analysis():
         estados_disp = sorted(df["estado"].dropna().unique())
 
     with col2:
-        estado_sel = st.multiselect("Estado", estados_disp, placeholder="Selecione uma Opção")
+        estado_sel = st.multiselect("Estado:", estados_disp, placeholder="Selecione uma Opção")
 
     df_temp = df.copy()
     if empresa_sel:
@@ -35,14 +35,14 @@ def geral_analysis():
     cidades_disp = sorted(df_temp["cidade"].dropna().unique())
 
     with col3:
-        cidade_sel = st.multiselect("Cidade", cidades_disp, placeholder="Selecione uma Opção")
+        cidade_sel = st.multiselect("Cidade:", cidades_disp, placeholder="Selecione uma Opção")
 
     if cidade_sel:
         df_temp = df_temp[df_temp["cidade"].isin(cidade_sel)]
     bairros_disp = sorted(df_temp["bairro"].dropna().unique())
 
     with col4:
-        bairro_sel = st.multiselect("Bairro", bairros_disp, placeholder="Selecione uma Opção")
+        bairro_sel = st.multiselect("Bairro:", bairros_disp, placeholder="Selecione uma Opção")
 
 
     df_filtrado = df.copy()
