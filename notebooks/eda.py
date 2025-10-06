@@ -2,6 +2,6 @@
 import pandas as pd
 from utils import eda
 
-df = 
+df_lojas = pd.read_parquet("../data/lojas.parquet")
 
-eda(df)
+eda(df_lojas)

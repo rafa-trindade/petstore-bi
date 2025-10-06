@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import source.utils as util
 
 from source.cobasi import cobasi_analysis
@@ -16,6 +17,12 @@ sidebar_logo = "https://i.postimg.cc/fWBrwgQt/logo-pettore.png"
 main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
 st.logo(sidebar_logo, icon_image=main_body_logo)
 
+df_lojas = pd.read_parquet("data/lojas.parquet")
+
+empresas_unicas = df_lojas['empresa'].str.capitalize().sort_values().unique().tolist()
+opcoes = ["Geral"] + empresas_unicas
+
+empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
 
 empresa_source = {
     "Geral": geral_analysis,
@@ -24,18 +31,17 @@ empresa_source = {
     "Petz": petz_analysis
 }
 
-empresa = st.sidebar.selectbox(
-    "Selecione Empresa para Análise:",
-    list(empresa_source.keys())
-)
+func = empresa_source.get(empresa, geral_analysis)
+func()
 
-empresa_source[empresa]()
+registros = str(len(df_lojas))
+data_str = pd.to_datetime(df_lojas.loc[0, 'data_extracao']).strftime("%d/%m/%y")
 
 col1_side, col2_side = st.sidebar.columns([2,1])
 col1_side.markdown('<h5 style="margin-bottom: -25px;">Registros:', unsafe_allow_html=True)
-col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;"> 533</h5>', unsafe_allow_html=True)
+col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + registros + '</h5>', unsafe_allow_html=True)
 col1_side.markdown('<h5 style="margin-bottom: -25px;">Última Extração:', unsafe_allow_html=True)
-col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;"> 05/10/25</h5>', unsafe_allow_html=True)
+col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + data_str + '</h5>', unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 
