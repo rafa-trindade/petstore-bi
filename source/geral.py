@@ -69,19 +69,7 @@ def geral_analysis():
         else:
             lat_center = df_filtrado["latitude"].mean()
             lon_center = df_filtrado["longitude"].mean()
-            lat_range = df_filtrado["latitude"].max() - df_filtrado["latitude"].min()
-            lon_range = df_filtrado["longitude"].max() - df_filtrado["longitude"].min()
-            max_range = max(lat_range, lon_range)
-            if len(df_filtrado) == 1 or max_range < 0.01:
-                zoom = 15
-            elif max_range < 0.05:
-                zoom = 13
-            elif max_range < 0.5:
-                zoom = 11
-            elif max_range < 2:
-                zoom = 9
-            else:
-                zoom = 7
+            zoom = 5
     else:
         lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
 
