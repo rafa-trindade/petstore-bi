@@ -69,7 +69,7 @@ def geral_analysis():
         else:
             lat_center = df_filtrado["latitude"].mean()
             lon_center = df_filtrado["longitude"].mean()
-            zoom = 5
+            zoom = 5.5
     else:
         lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
 
