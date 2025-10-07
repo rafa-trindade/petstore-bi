@@ -14,7 +14,7 @@ def geral_analysis():
     with tab1:
         col1, col2, col3, col4 = st.columns(4)
 
-        empresas_disp = sorted(df["empresa"].dropna().str.capitalize().unique().tolist())
+        empresas_disp = sorted(df["empresa"].dropna().str.title().unique().tolist())
         empresas_disp = ["Todas"] + empresas_disp
         with col1:
             empresa_sel = st.selectbox("Empresa:", empresas_disp, index=0)
@@ -30,7 +30,7 @@ def geral_analysis():
 
         df_temp = df.copy()
         if empresa_sel != "Todas":
-            df_temp = df_temp[df_temp["empresa"].str.capitalize() == empresa_sel]
+            df_temp = df_temp[df_temp["empresa"].str.title() == empresa_sel]
         if estado_sel != "Todos":
             df_temp = df_temp[df_temp["estado"] == estado_sel]
 
@@ -53,7 +53,7 @@ def geral_analysis():
 
         df_filtrado = df.copy()
         if empresa_sel != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["empresa"].str.capitalize() == empresa_sel]
+            df_filtrado = df_filtrado[df_filtrado["empresa"].str.title() == empresa_sel]
         if estado_sel != "Todos":
             df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
         if cidade_sel != "Todas":
@@ -85,7 +85,7 @@ def geral_analysis():
                 center=dict(lat=lat_center, lon=lon_center),
                 zoom=zoom,
                 mapbox_style="carto-positron",
-                color_continuous_scale="Viridis",
+                color_continuous_scale="viridis",
                 hover_data=["empresa", "nome", "logradouro", "bairro", "cidade", "estado"],
                 height=600
             )

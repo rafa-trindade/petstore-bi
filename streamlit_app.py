@@ -14,13 +14,13 @@ st.set_page_config(
     initial_sidebar_state="expanded", 
     page_icon="📊")
 
-sidebar_logo = "https://i.postimg.cc/fWBrwgQt/logo-pettore.png"
+sidebar_logo = "https://i.postimg.cc/MG19SYt6/logo-pettore.png"
 main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
 st.logo(sidebar_logo, icon_image=main_body_logo)
 
 df_lojas = pd.read_parquet("data/lojas.parquet")
 
-empresas_unicas = df_lojas['empresa'].str.capitalize().sort_values().unique().tolist()
+empresas_unicas = df_lojas['empresa'].str.title ().sort_values().unique().tolist()
 opcoes = ["Geral"] + empresas_unicas
     
 empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
@@ -30,7 +30,7 @@ empresa_source = {
     "Cobasi": cobasi_analysis,
     "Petland": petland_analysis,
     "Petz": petz_analysis,
-    "Pop pet": pop_pet_analysis
+    "Pop Pet": pop_pet_analysis
 }
 
 func = empresa_source.get(empresa, geral_analysis)
