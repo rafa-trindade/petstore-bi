@@ -96,9 +96,9 @@ def geral_analysis():
                     lat=df_emp["latitude"],
                     lon=df_emp["longitude"],
                     mode="markers",
-                    name=empresa,
+                    name=empresa.title(),
                     marker=dict(size=8),
-                    text=df_emp["nome"],
+                    text=df_emp["nome"].str.title() + " - " + df_emp["cidade"] + "-" + df_emp["estado"],
                     hoverinfo="text"
                 )
 
