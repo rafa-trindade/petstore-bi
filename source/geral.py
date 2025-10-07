@@ -63,7 +63,7 @@ def geral_analysis():
 
 
     if not df_filtrado.empty:
-        if (empresa_sel == "Todas" and estado_sel == "Todos" 
+        if ((empresa_sel == "Todas" or empresa_sel in empresas_disp) and estado_sel == "Todos" 
             and cidade_sel == "Todas" and bairro_sel == "Todos"):
             lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
         else:
