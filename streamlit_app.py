@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded", 
     page_icon="📊")
 
-sidebar_logo = "https://i.postimg.cc/MG19SYt6/logo-pettore.png"
+sidebar_logo = "https://i.postimg.cc/9QYBgffr/logo-pettore.png"
 main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
 st.logo(sidebar_logo, icon_image=main_body_logo)
 
