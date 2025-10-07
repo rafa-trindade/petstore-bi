@@ -60,7 +60,7 @@ def aplicar_estilo():
     st.sidebar.markdown("""
 
         <div align="center">
-            <a href="https://github.com/rafa-trindade/petstore-pipeline" target="_blank">
+            <a href="https://github.com/rafa-trindade/petstore-pipeline/blob/main/README.md" target="_blank">
                     <img style="border-radius: 7px;"
                     src="https://img.shields.io/badge/petstore--pipeline-2B5482?style=for-the-badge&logo=github&logoColor=fff&logoWidth=40&scale=1" />
             </a>             
