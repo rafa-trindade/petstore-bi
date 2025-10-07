@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide",
     page_title="petStore BI | Rafael ", 
     initial_sidebar_state="expanded", 
-    page_icon="📊")
+    page_icon="🗺️")
 
 sidebar_logo = "https://i.postimg.cc/9QYBgffr/logo-pettore.png"
 main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
