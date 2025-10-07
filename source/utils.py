@@ -18,7 +18,7 @@ def aplicar_estilo():
             }
             
             .st-emotion-cache-1jicfl2 {
-                padding: 0rem 5rem 1rem;        
+                padding: 1rem 5rem 1rem;        
 
             /* Estilo para o container principal das notificações */
             [data-testid="stNotification"][role="alert"] {
