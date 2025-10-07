@@ -1,5 +1,5 @@
 import streamlit as st
 
-def petlove_analysis():
-    st.title("Análise Petlove")
+def petland_analysis():
+    st.title("Análise Petland")
     st.write("Em desenvolvimento...")

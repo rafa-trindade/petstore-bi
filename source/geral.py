@@ -6,92 +6,96 @@ def geral_analysis():
     st.title("Análise Geral")
 
     df = pd.read_parquet("data/lojas.parquet")
-
     df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
     df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-
     df = df.dropna(subset=["latitude", "longitude"])
 
     col1, col2, col3, col4 = st.columns(4)
 
+    empresas_disp = sorted(df["empresa"].dropna().str.capitalize().unique().tolist())
+    empresas_disp = ["Todas"] + empresas_disp
     with col1:
-        empresas_disp = sorted(df["empresa"].str.capitalize().sort_values().dropna().unique())
-        empresa_sel = st.multiselect("Empresa:", empresas_disp, placeholder="Selecione uma Opção")
+        empresa_sel = st.selectbox("Empresa:", empresas_disp, index=0)
 
-    if empresa_sel:
-        estados_disp = sorted(df[df["empresa"].isin(empresa_sel)]["estado"].dropna().unique())
+    if empresa_sel == "Todas":
+        estados_disp = sorted(df["estado"].dropna().unique().tolist())
     else:
-        estados_disp = sorted(df["estado"].dropna().unique())
+        estados_disp = sorted(df[df["empresa"].str.capitalize() == empresa_sel]["estado"].dropna().unique().tolist())
+    estados_disp = ["Todos"] + estados_disp
 
     with col2:
-        estado_sel = st.multiselect("Estado:", estados_disp, placeholder="Selecione uma Opção")
+        estado_sel = st.selectbox("Estado:", estados_disp)
 
     df_temp = df.copy()
-    if empresa_sel:
-        df_temp = df_temp[df_temp["empresa"].isin(empresa_sel)]
-    if estado_sel:
-        df_temp = df_temp[df_temp["estado"].isin(estado_sel)]
+    if empresa_sel != "Todas":
+        df_temp = df_temp[df_temp["empresa"].str.capitalize() == empresa_sel]
+    if estado_sel != "Todos":
+        df_temp = df_temp[df_temp["estado"] == estado_sel]
 
-    cidades_disp = sorted(df_temp["cidade"].dropna().unique())
+    cidades_disp = sorted(df_temp["cidade"].dropna().unique().tolist())
+    cidades_disp = ["Todas"] + cidades_disp
 
     with col3:
-        cidade_sel = st.multiselect("Cidade:", cidades_disp, placeholder="Selecione uma Opção")
+        cidade_sel = st.selectbox("Cidade:", cidades_disp)
 
-    if cidade_sel:
-        df_temp = df_temp[df_temp["cidade"].isin(cidade_sel)]
-    bairros_disp = sorted(df_temp["bairro"].dropna().unique())
 
+    df_temp2 = df_temp.copy()
+    if cidade_sel != "Todas":
+        df_temp2 = df_temp2[df_temp2["cidade"] == cidade_sel]
+
+    bairros_disp = sorted(df_temp2["bairro"].dropna().unique().tolist())
+    bairros_disp = ["Todos"] + bairros_disp
     with col4:
-        bairro_sel = st.multiselect("Bairro:", bairros_disp, placeholder="Selecione uma Opção")
+        bairro_sel = st.selectbox("Bairro:", bairros_disp, index=0)
 
 
     df_filtrado = df.copy()
-
-    if empresa_sel:
-        df_filtrado = df_filtrado[df_filtrado["empresa"].isin(empresa_sel)]
-    if estado_sel:
-        df_filtrado = df_filtrado[df_filtrado["estado"].isin(estado_sel)]
-    if cidade_sel:
-        df_filtrado = df_filtrado[df_filtrado["cidade"].isin(cidade_sel)]
-    if bairro_sel:
-        df_filtrado = df_filtrado[df_filtrado["bairro"].isin(bairro_sel)]
+    if empresa_sel != "Todas":
+        df_filtrado = df_filtrado[df_filtrado["empresa"].str.capitalize() == empresa_sel]
+    if estado_sel != "Todos":
+        df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
+    if cidade_sel != "Todas":
+        df_filtrado = df_filtrado[df_filtrado["cidade"] == cidade_sel]
+    if bairro_sel != "Todos":
+        df_filtrado = df_filtrado[df_filtrado["bairro"] == bairro_sel]
 
     st.markdown(f"**{len(df_filtrado)} lojas encontradas.**")
 
 
     if not df_filtrado.empty:
-        lat_center = df_filtrado["latitude"].mean()
-        lon_center = df_filtrado["longitude"].mean()
-
-        lat_range = df_filtrado["latitude"].max() - df_filtrado["latitude"].min()
-        lon_range = df_filtrado["longitude"].max() - df_filtrado["longitude"].min()
-        max_range = max(lat_range, lon_range)
-
-        if max_range < 0.05:
-            zoom = 12
-        elif max_range < 0.1:
-            zoom = 10
-        elif max_range < 1:
-            zoom = 7
-        elif max_range < 5:
-            zoom = 5
+        if (empresa_sel == "Todas" and estado_sel == "Todos" 
+            and cidade_sel == "Todas" and bairro_sel == "Todos"):
+            lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
         else:
-            zoom = 3
+            lat_center = df_filtrado["latitude"].mean()
+            lon_center = df_filtrado["longitude"].mean()
+            lat_range = df_filtrado["latitude"].max() - df_filtrado["latitude"].min()
+            lon_range = df_filtrado["longitude"].max() - df_filtrado["longitude"].min()
+            max_range = max(lat_range, lon_range)
+            if len(df_filtrado) == 1 or max_range < 0.01:
+                zoom = 15
+            elif max_range < 0.05:
+                zoom = 13
+            elif max_range < 0.5:
+                zoom = 11
+            elif max_range < 2:
+                zoom = 9
+            else:
+                zoom = 7
     else:
-        lat_center, lon_center, zoom = -30.2, -51.9, 3
+        lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
 
-    # MAPA DE CALOR 
+
     if not df_filtrado.empty:
         fig = px.density_mapbox(
             df_filtrado,
             lat="latitude",
             lon="longitude",
-            z=None,
             radius=20,
             center=dict(lat=lat_center, lon=lon_center),
             zoom=zoom,
             mapbox_style="carto-positron",
-            color_continuous_scale="viridis",
+            color_continuous_scale="Viridis",
             hover_data=["empresa", "nome", "logradouro", "bairro", "cidade", "estado"],
             height=600
         )
@@ -104,14 +108,11 @@ def geral_analysis():
                 mode="markers",
                 name=empresa,
                 marker=dict(size=8),
-                text=df_emp["nome"]
+                text=df_emp["nome"],
+                hoverinfo="text"
             )
 
-        fig.update_layout(
-            margin=dict(l=0, r=0, t=0, b=0),
-            legend=dict(x=0, y=1)
-        )
-
+        fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), legend=dict(x=0, y=1))
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.warning("Nenhuma loja encontrada com os filtros selecionados.")
