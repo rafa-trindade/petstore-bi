@@ -10,7 +10,7 @@ from source.geral import geral_analysis
 
 st.set_page_config(
     layout="wide",
-    page_title="petStore BI | Rafael ", 
+    page_title="petstore-bi | Rafael Trindade ", 
     initial_sidebar_state="expanded", 
     page_icon="🗺️")
 
