@@ -1,9 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import utils as util
-import geopandas as gpd
-from geopy.distance import geodesic
+from . import utils as util
 import numpy as np
 
 @st.cache_data
