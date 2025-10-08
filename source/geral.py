@@ -58,8 +58,8 @@ def geral_analysis():
         if cidade_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["cidade"] == cidade_sel]
 
-        total_cidades_petz = df_filtrado["cidade"].nunique()
-        total_estados_petz = 1 if estado_sel != "Todos" else df_filtrado["estado"].nunique()
+        total_cidades = df_filtrado["cidade"].nunique()
+        total_estados = 1 if estado_sel != "Todos" else df_filtrado["estado"].nunique()
 
         df_cidades_ibge = util.municipios_ibge()
         df_ibge_filtrado = df_cidades_ibge.copy()
@@ -76,8 +76,8 @@ def geral_analysis():
         total_cidades_brasil = len(df_ibge_filtrado)
         total_estados_brasil = df_ibge_filtrado["UF_sigla"].nunique() if estado_sel == "Todos" else 1
 
-        cobertura_cidades = (total_cidades_petz / total_cidades_brasil) * 100 if total_cidades_brasil > 0 else 0
-        cobertura_estados = (total_estados_petz / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
+        cobertura_cidades = (total_cidades / total_cidades_brasil) * 100 if total_cidades_brasil > 0 else 0
+        cobertura_estados = (total_estados / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
 
      
         col4, col5, col6, col7 = st.columns(4)
