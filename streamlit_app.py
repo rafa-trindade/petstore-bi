@@ -21,12 +21,12 @@ st.logo(sidebar_logo, icon_image=main_body_logo)
 df_lojas = pd.read_parquet("data/lojas.parquet")
 
 empresas_unicas = df_lojas['empresa'].str.title ().sort_values().unique().tolist()
-opcoes = ["Geral"] + empresas_unicas
+opcoes = ["Todas"] + empresas_unicas
     
 empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
 
 empresa_source = {
-    "Geral": geral_analysis,
+    "Todas": geral_analysis,
     "Cobasi": cobasi_analysis,
     "Petland": petland_analysis,
     "Petz": petz_analysis,

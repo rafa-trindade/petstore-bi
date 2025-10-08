@@ -18,4 +18,3 @@ def extract_to_parquet():
 
     print(f"{len(df_lojas)} registros salvos em {CSV_PATH}")
 
-    return df_lojas

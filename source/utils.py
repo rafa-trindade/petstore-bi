@@ -1,4 +1,58 @@
 import streamlit as st
+import pandas as pd
+import requests
+
+
+def municipios_ibge():
+    url = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
+    resp = requests.get(url)
+    resp.raise_for_status()
+    data = resp.json()
+
+    municipios = []
+    for m in data:
+        microrregiao = m.get("microrregiao") or {}
+        mesorregiao = microrregiao.get("mesorregiao") or {}
+        uf = mesorregiao.get("UF") or {}
+
+        municipios.append({
+            "id": m.get("id"),
+            "nome": m.get("nome"),
+            "microrregiao": microrregiao.get("nome"),
+            "mesorregiao": mesorregiao.get("nome"),
+            "UF_id": uf.get("id"),
+            "UF_sigla": uf.get("sigla"),
+            "UF_nome": uf.get("nome")
+        })
+
+    df = pd.DataFrame(municipios)
+    return df
+
+
+
+regioes = {
+    "Norte": ["AC","AP","AM","PA","RO","RR","TO"],
+    "Nordeste": ["AL","BA","CE","MA","PB","PE","PI","RN","SE"],
+    "Centro-Oeste": ["DF","GO","MT","MS"],
+    "Sudeste": ["ES","MG","RJ","SP"],
+    "Sul": ["PR","RS","SC"]
+}
+
+def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
+
+    # Centro padrão do Brasil
+    default_lat, default_lon, default_zoom = -17.2350, -51.9253, 3.4
+
+    if not df_filtrado.empty:
+        if estado_sel == "Todos" and cidade_sel == "Todas":
+            return default_lat, default_lon, default_zoom
+        else:
+            lat_center = df_filtrado["latitude"].mean()
+            lon_center = df_filtrado["longitude"].mean()
+            zoom = 5.5
+            return lat_center, lon_center, zoom
+    else:
+        return default_lat, default_lon, default_zoom
 
 
 def aplicar_estilo():

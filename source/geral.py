@@ -1,87 +1,139 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import source.utils as util
+import geopandas as gpd
+from geopy.distance import geodesic
+import numpy as np
+
+
+@st.cache_data
+def load_data():
+    df = pd.read_parquet("data/lojas.parquet")
+    df = df.dropna(subset=["latitude", "longitude"])
+    return df
 
 def geral_analysis():
 
-    df = pd.read_parquet("data/lojas.parquet")
-    df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
-    df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-    df = df.dropna(subset=["latitude", "longitude"])
+    df_geral = load_data()
 
     tab1, tab2 = st.tabs(["🗺️ Visão Geral", "-"])
     
     with tab1:
-        col1, col2, col3, col4 = st.columns(4)
 
-        empresas_disp = sorted(df["empresa"].dropna().str.title().unique().tolist())
-        empresas_disp = ["Todas"] + empresas_disp
+        col1, col2, col3 = st.columns(3)
+
+        regioes_disp = ["Todas"] + list(util.regioes.keys())
         with col1:
-            empresa_sel = st.selectbox("Empresa:", empresas_disp, index=0)
+            regiao_sel = st.selectbox("Região:", regioes_disp)
 
-        if empresa_sel == "Todas":
-            estados_disp = sorted(df["estado"].dropna().unique().tolist())
+        if regiao_sel != "Todas":
+            if regiao_sel:
+                estados_da_regiao = util.regioes[regiao_sel]
+                df_regiao = df_geral[df_geral["estado"].isin(estados_da_regiao)]
+                estados_disp = ["Todos"] + sorted(df_regiao["estado"].dropna().unique().tolist())
+            else:
+                estados_disp = ["Todos"]
         else:
-            estados_disp = sorted(df[df["empresa"].str.capitalize() == empresa_sel]["estado"].dropna().unique().tolist())
-        estados_disp = ["Todos"] + estados_disp
+            estados_disp = ["Todos"] 
 
         with col2:
-            estado_sel = st.selectbox("Estado:", estados_disp)
+            estado_sel = st.selectbox("Estado:", estados_disp, disabled=(regiao_sel == "Todas"))
 
-        df_temp = df.copy()
-        if empresa_sel != "Todas":
-            df_temp = df_temp[df_temp["empresa"].str.title() == empresa_sel]
-        if estado_sel != "Todos":
+
+        df_temp = df_geral.copy()
+        if regiao_sel != "Todas" and estado_sel != "Todos":
             df_temp = df_temp[df_temp["estado"] == estado_sel]
-
-        cidades_disp = sorted(df_temp["cidade"].dropna().unique().tolist())
-        cidades_disp = ["Todas"] + cidades_disp
+            cidades_disp = ["Todas"] + sorted(df_temp["cidade"].dropna().unique().tolist())
+        else:
+            cidades_disp = ["Todas"]
 
         with col3:
-            cidade_sel = st.selectbox("Cidade:", cidades_disp)
+            cidade_sel = st.selectbox("Cidade:", cidades_disp, disabled=(estado_sel == "Todos" or regiao_sel == "Todas"))
 
 
-        df_temp2 = df_temp.copy()
-        if cidade_sel != "Todas":
-            df_temp2 = df_temp2[df_temp2["cidade"] == cidade_sel]
-
-        bairros_disp = sorted(df_temp2["bairro"].dropna().unique().tolist())
-        bairros_disp = ["Todos"] + bairros_disp
-        with col4:
-            bairro_sel = st.selectbox("Bairro:", bairros_disp, index=0)
-
-
-        df_filtrado = df.copy()
-        if empresa_sel != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["empresa"].str.title() == empresa_sel]
+        df_filtrado = df_geral.copy()
+        if regiao_sel != "Todas":
+            df_filtrado = df_filtrado[df_filtrado["estado"].isin(util.regioes[regiao_sel])]
         if estado_sel != "Todos":
             df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
         if cidade_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["cidade"] == cidade_sel]
-        if bairro_sel != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["bairro"] == bairro_sel]
 
-        st.markdown(f"**{len(df_filtrado)} lojas encontradas**")
+        total_cidades_petz = df_filtrado["cidade"].nunique()
+        total_estados_petz = 1 if estado_sel != "Todos" else df_filtrado["estado"].nunique()
 
+        df_cidades_ibge = util.municipios_ibge()
+        df_ibge_filtrado = df_cidades_ibge.copy()
 
-        if not df_filtrado.empty:
-            if ((empresa_sel == "Todas" or empresa_sel in empresas_disp) and estado_sel == "Todos" 
-                and cidade_sel == "Todas" and bairro_sel == "Todos"):
-                lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
+        if regiao_sel != "Todas":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["UF_sigla"].isin(util.regioes[regiao_sel])]
+
+        if estado_sel != "Todos":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["UF_sigla"] == estado_sel]
+
+        if cidade_sel != "Todas":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["nome"] == cidade_sel]
+
+        total_cidades_brasil = len(df_ibge_filtrado)
+        total_estados_brasil = df_ibge_filtrado["UF_sigla"].nunique() if estado_sel == "Todos" else 1
+
+        cobertura_cidades = (total_cidades_petz / total_cidades_brasil) * 100 if total_cidades_brasil > 0 else 0
+        cobertura_estados = (total_estados_petz / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
+
+     
+        col4, col5, col6, col7 = st.columns(4)
+
+        # Métrica: Quantidade de lojas
+        with col4:
+            if cidade_sel != "Todas":
+                titulo_lojas = "Lojas |\n" + cidade_sel
+            elif estado_sel != "Todos":
+                titulo_lojas = "Lojas |\n" + estado_sel
+            elif regiao_sel != "Todas":
+                titulo_lojas = "Lojas |\n" + regiao_sel
             else:
-                lat_center = df_filtrado["latitude"].mean()
-                lon_center = df_filtrado["longitude"].mean()
-                zoom = 5.5
-        else:
-            lat_center, lon_center, zoom = -17.2350, -51.9253, 3.5
+                titulo_lojas = "Lojas | Brasil"
+            st.metric(label=titulo_lojas, value=f"{len(df_filtrado)}")
+
+        # Métrica: Cobertura de estados
+        with col6:
+            if estado_sel == "Todos":
+                if regiao_sel == "Todas":
+                    titulo_estado = "Cobertura de Estados | Brasil (%)"
+                else:
+                    titulo_estado = f"Cobertura de Estados | {regiao_sel} (%)"
+                st.metric(titulo_estado, f"{cobertura_estados:.2f}%")
+            else:
+                st.metric("Estado:", estado_sel)
+
+        # Métrica: Cobertura de cidades
+        with col7:
+            if cidade_sel == "Todas":
+                if regiao_sel == "Todas":
+                    titulo_cidade = "Cobertura de Cidades | Brasil (%)"
+                elif estado_sel == "Todos":
+                    titulo_cidade = f"Cobertura de Cidades | {regiao_sel} (%)"
+                else:
+                    titulo_cidade = f"Cobertura de Cidades | {estado_sel} (%)"
+                valor_cidade = f"{cobertura_cidades:.2f}%"
+            else:
+                titulo_cidade = "Cidade:"
+                valor_cidade = cidade_sel
+            st.metric(label=titulo_cidade, value=valor_cidade)
 
 
-        if not df_filtrado.empty:
+
+
+        with st.container(border=True):
+
+            lat_center, lon_center, zoom = util.calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel)
+
             fig = px.density_mapbox(
                 df_filtrado,
                 lat="latitude",
                 lon="longitude",
-                radius=20,
+                radius=15,
                 center=dict(lat=lat_center, lon=lon_center),
                 zoom=zoom,
                 mapbox_style="carto-positron",
@@ -104,5 +156,3 @@ def geral_analysis():
 
             fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), legend=dict(x=0, y=1))
             st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Nenhuma loja encontrada com os filtros selecionados.")
