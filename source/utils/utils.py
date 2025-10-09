@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px 
 import requests
 
-
 def municipios_ibge():
     url = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
     resp = requests.get(url)
@@ -29,7 +28,6 @@ def municipios_ibge():
     df = pd.DataFrame(municipios)
     return df
 
-
 regioes = {
     "Norte": ["AC","AP","AM","PA","RO","RR","TO"],
     "Nordeste": ["AL","BA","CE","MA","PB","PE","PI","RN","SE"],
@@ -37,25 +35,6 @@ regioes = {
     "Sudeste": ["ES","MG","RJ","SP"],
     "Sul": ["PR","RS","SC"]
 }
-
-
-def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
-
-    # Centro padrão do Brasil
-    default_lat, default_lon, default_zoom = -17.2350, -51.9253, 3.4
-
-    if not df_filtrado.empty:
-        if estado_sel == "Todos" and cidade_sel == "Todas":
-            return default_lat, default_lon, default_zoom
-        else:
-            lat_center = df_filtrado["latitude"].mean()
-            lon_center = df_filtrado["longitude"].mean()
-            zoom = 5.5
-            return lat_center, lon_center, zoom
-    else:
-        return default_lat, default_lon, default_zoom
-
-
 
 azul = "#2d5480" 
 azul_escuro = "#2d5c80"
@@ -102,7 +81,7 @@ def aplicar_estilo():
             [data-testid="stNotificationContentError"] {
                 background-color: #dcb5bb !important; /* Cor de fundo para st.error */
                 color: #a32639 !important; /* Cor do texto para st.error */
-            }
+            }lat_center
 
             /* Estilo para garantir que o container principal também tenha o mesmo fundo */
             [data-testid="stNotification"][role="alert"]:has([data-testid="stNotificationContentInfo"]) {

@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import source.utils as util
+import source.utils.utils as util
 
 from source.cobasi import cobasi_analysis
 from source.petland import petland_analysis

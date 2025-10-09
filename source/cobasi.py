@@ -1,10 +1,8 @@
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
-from . import utils as util
-import json
+import pandas as pd
 
+from .utils import utils as util
+from .utils import maps as maps
 
 @st.cache_data
 def load_data():
@@ -14,79 +12,77 @@ def load_data():
     return df
 
 def cobasi_analysis():
-
     df_cobasi = load_data()
+    
+    df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  # colunas: cidade, estado, populacao
 
     tab1, tab2, tab3 = st.tabs(["🗺️ Cobertura", "Concorrência", "Expansão"])
 
     with tab1:
-
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 
         regioes_disp = ["Todas"] + list(util.regioes.keys())
-
         with col1:
             regiao_sel = st.selectbox("Região:", regioes_disp)
 
         if regiao_sel != "Todas":
-            if regiao_sel:
-                estados_da_regiao = util.regioes[regiao_sel]
-                df_regiao = df_cobasi[df_cobasi["estado"].isin(estados_da_regiao)]
-                estados_disp = ["Todos"] + sorted(df_regiao["estado"].dropna().unique().tolist())
-            else:
-                estados_disp = ["Todos"]
+            estados_da_regiao = util.regioes.get(regiao_sel, [])
+            df_regiao = df_cobasi[df_cobasi["estado"].isin(estados_da_regiao)]
+            estados_disp = ["Todos"] + sorted(df_regiao["estado"].dropna().unique().tolist())
         else:
-            estados_disp = ["Todos"] 
-
+            estados_disp = ["Todos"]
 
         with col2:
             estado_sel = st.selectbox("Estado:", estados_disp, disabled=(regiao_sel == "Todas"))
-
-        df_temp = df_cobasi.copy()
-
-        if regiao_sel != "Todas" and estado_sel != "Todos":
-            df_temp = df_temp[df_temp["estado"] == estado_sel]
-            cidades_disp = ["Todas"] + sorted(df_temp["cidade"].dropna().unique().tolist())
-        else:
-            cidades_disp = ["Todas"]
-
-
-        with col3:
-            cidade_sel = st.selectbox("Cidade:", cidades_disp, disabled=(estado_sel == "Todos" or regiao_sel == "Todas"))
 
         df_filtrado = df_cobasi.copy()
         if regiao_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["estado"].isin(util.regioes[regiao_sel])]
         if estado_sel != "Todos":
             df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
+
+        with col4:
+            pop_ranges = ["Geral (todas as cidades)", "> 50.000 habitantes", "> 100.000 habitantes", "> 250.000 habitantes", "> 500.000 habitantes"]
+            pop_sel = st.selectbox("População:", pop_ranges, key="pop_select")  # ainda aparece apenas como filtro de cidades
+
+        df_temp = df_filtrado.copy()
+        if pop_sel != "Geral (todas as cidades)":
+            pop_min = int(pop_sel.split(">")[1].replace(".", "").replace(" habitantes", "").replace(".", "").strip())
+            df_temp = df_temp[df_temp.groupby("cidade")["populacao"].transform("first") > pop_min]
+
+        cidades_disp = ["Todas"] + sorted(df_temp["cidade"].dropna().unique().tolist())
+        with col3:
+            cidade_sel = st.selectbox("Cidade:", cidades_disp, disabled=(estado_sel == "Todos" or regiao_sel == "Todas"))
+
         if cidade_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["cidade"] == cidade_sel]
 
-        
-        # - Métricas
+        if cidade_sel == "Todas" and pop_sel != "Geral (todas as cidades)":
+            df_filtrado = df_filtrado[df_filtrado.groupby("cidade")["populacao"].transform("first") > pop_min]
+
+        df_ibge_filtrado = df_ibge.copy()
+        if regiao_sel != "Todas":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["estado"].isin(util.regioes[regiao_sel])]
+        if estado_sel != "Todos":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["estado"] == estado_sel]
+        if cidade_sel != "Todas":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["cidade"] == cidade_sel]
+
+        if cidade_sel == "Todas" and pop_sel != "Geral (todas as cidades)":
+            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["populacao"] > pop_min]
+
+        # --- Métricas ---
         total_cidades = df_filtrado["cidade"].nunique()
         total_estados = 1 if estado_sel != "Todos" else df_filtrado["estado"].nunique()
 
-        df_cidades_ibge = util.municipios_ibge()
-        df_ibge_filtrado = df_cidades_ibge.copy()
-
-        if regiao_sel != "Todas":
-            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["UF_sigla"].isin(util.regioes[regiao_sel])]
-
-        if estado_sel != "Todos":
-            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["UF_sigla"] == estado_sel]
-
-        if cidade_sel != "Todas":
-            df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["nome"] == cidade_sel]
-
-        
         total_cidades_brasil = len(df_ibge_filtrado)
-        total_estados_brasil = df_ibge_filtrado["UF_sigla"].nunique() if estado_sel == "Todos" else 1
+        total_estados_brasil = df_ibge_filtrado["estado"].nunique() if estado_sel == "Todos" else 1
 
         cobertura_cidades = (total_cidades / total_cidades_brasil) * 100 if total_cidades_brasil > 0 else 0
         cobertura_estados = (total_estados / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
+        #st.write(total_cidades)
+        #st.write(total_cidades_brasil)
 
-     
 
         col4, col5, col6, col7 = st.columns(4)
 
@@ -101,89 +97,41 @@ def cobasi_analysis():
                 titulo_lojas = "Lojas | Brasil"
             st.metric(label=titulo_lojas, value=f"{len(df_filtrado)}")
 
-        with col6:
+        with col5:
             if estado_sel == "Todos":
-                if regiao_sel == "Todas":
-                    titulo_estado = "Cobertura de Estados | Brasil (%)"
-                else:
-                    titulo_estado = f"Cobertura de Estados | {regiao_sel} (%)"
+                titulo_estado = f"Cobertura de Estados | {'Brasil' if regiao_sel == 'Todas' else regiao_sel} (%)"
                 st.metric(titulo_estado, f"{cobertura_estados:.2f}%")
             else:
                 st.metric("Estado:", estado_sel)
 
-        with col7:
+        with col6:
             if cidade_sel == "Todas":
-                if regiao_sel == "Todas":
-                    titulo_cidade = "Cobertura de Cidades | Brasil (%)"
-                elif estado_sel == "Todos":
-                    titulo_cidade = f"Cobertura de Cidades | {regiao_sel} (%)"
+                label_base = "Brasil" if regiao_sel == "Todas" else (regiao_sel if estado_sel == "Todos" else estado_sel)
+                if pop_sel == "Geral (todas as cidades)":
+                    titulo_cidade = f"Cobertura de Cidades | {label_base} (%)"
                 else:
-                    titulo_cidade = f"Cobertura de Cidades | {estado_sel} (%)"
+                    titulo_cidade = f'Cobertura de Cidades {pop_sel} | {label_base} (%)'
                 valor_cidade = f"{cobertura_cidades:.2f}%"
             else:
                 titulo_cidade = "Cidade:"
                 valor_cidade = cidade_sel
             st.metric(label=titulo_cidade, value=valor_cidade)
 
+        with col7:
+            if cidade_sel != "Todas":
+                df_cidade = df_filtrado[df_filtrado["cidade"] == cidade_sel]
+                if not df_cidade.empty:
+                    pop_cidade = df_cidade["populacao"].dropna().iloc[0]
+                else:
+                    pop_cidade = 0
+                st.metric(label=f"População | {cidade_sel}", value=f"{int(pop_cidade):,}".replace(",", "."))
 
 
-        with st.container(border=True):
 
-            with open("source/utils/br_states.geojson", "r") as f:
-                geojson = json.load(f)
-
-            lat_center, lon_center, zoom = util.calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel)
-
-            fig = px.density_mapbox(
-                df_filtrado,
-                lat="latitude",
-                lon="longitude",
-                radius=15,
-                center=dict(lat=lat_center, lon=lon_center),
-                zoom=zoom,
-                mapbox_style="carto-positron",
-                hover_data=["nome", "cidade", "estado"],
-                height=600
-
-            )
-            
-            locations = [f["properties"]["sigla"] for f in geojson["features"]]
-
-            z = [0]*len(locations)
-            line_widths = [0.4]*len(locations)
-            line_colors = ["#5A7DA2"]*len(locations)
-
-            if regiao_sel != "Todas" and estado_sel == "Todos":
-                estados_da_regiao = util.regioes[regiao_sel]  # pega os estados da região
-                z = [1 if sigla in estados_da_regiao else 0 for sigla in locations]
-                line_widths = [1 if sigla in estados_da_regiao else 0.4 for sigla in locations]
-                line_colors = ["#5A7DA2" if sigla in estados_da_regiao else "#5A7DA2" for sigla in locations]
-
-            elif estado_sel != "Todos":
-                z = [1 if sigla == estado_sel else 0 for sigla in locations]
-                line_widths = [1 if sigla == estado_sel else 0.4 for sigla in locations]
-                line_colors = ["#5A7DA2" if sigla == estado_sel else "#5A7DA2" for sigla in locations]
-
-            fig.add_trace(go.Choroplethmapbox(
-                geojson=geojson,
-                locations=locations,
-                z=z,
-                colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],      
-                showscale=False,
-                marker_line_width=line_widths,
-                marker_line_color=line_colors,
-                featureidkey="properties.sigla",
-                hoverinfo="skip",
-                autocolorscale=False
-            ))
-
-
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-
-            st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.write("Em desenvolvimento...")
-
-    with tab3:
-        st.write("Em desenvolvimento...")
+        # --- Mapa ---
+        with st.container():
+            fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
+            if fig is not None:
+                maps.geojson_maps(fig, regiao_sel, estado_sel)
+            else:
+                st.warning("Não há dados para exibir no mapa.")
