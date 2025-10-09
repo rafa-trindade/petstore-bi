@@ -20,23 +20,24 @@ O `petstore-bi` consome os dados finais (Gold) gerados pelo `petstore-etl` e rea
 
 ## 📊 Estrutura dos Dados e Metadados
 
-O projeto inicia com as colunas abaixo, contendo dados  de endereços oriundos do projeto [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) carregados no PostgreSQL, que serão enriquecidos progressivamente com informações geográficas e analíticas para suporte a decisões de expansão.
+O projeto inicia com as colunas abaixo, contendo dados oriundos do projeto [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) carregados no PostgreSQL, que serão enriquecidos progressivamente com informações analíticas para suporte a decisões de expansão.
 
-
-| Coluna        | Tipo   | Descrição                   | Valores possíveis / Observações | Unidade | Camada      | Origem      | Última Atualização |
-| ------------- | ------ | --------------------------- | ------------------------------- | ------- | ----------- | ----------- | ------------------ |
-| id            | string | Identificador único da loja | Sequencial (autoincrement)      | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| empresa       | string | Nome da rede                | Petz, Cobasi, Petlove...        | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| nome          | string | Nome da loja                | -                               | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| logradouro    | string | Logradouro simplificado     | -                               | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| bairro        | string | Bairro                      | -                               | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| cidade        | string | Cidade                      | -                               | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| estado        | string | Sigla do estado             | SP, RJ, MG...                   | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| cep           | string | CEP normalizado             | 00000-000                       | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-| latitude      | float  | Latitude geográfica         | -90 a 90                        | graus   | Analytics   | PostgreSQL  | 2025-10-06         |
-| longitude     | float  | Longitude geográfica        | -180 a 180                      | graus   | Analytics   | PostgreSQL  | 2025-10-06         |
-| data_extracao | date   | Data da extração do dado    | YYYY-MM-DD                      | -       | Analytics   | PostgreSQL  | 2025-10-06         |
-
+| Coluna                      | Tipo    | Descrição                         | Valores possíveis / Observações             | Unidade | Camada        | Origem              | Última Atualização |
+| --------------------------- | ------- | --------------------------------- | ------------------------------------------- | ------- | ------------- | ------------------- | ------------------ |
+| empresa                     | string  | Nome da rede                      | Petz, Cobasi, Petlove...                    | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| nome                        | string  | Nome da loja                      | -                                           | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| logradouro                  | string  | Logradouro simplificado           | -                                           | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| bairro                      | string  | Bairro                            | -                                           | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| cidade                      | string  | Cidade                            | -                                           | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| estado                      | string  | Sigla do estado                   | SP, RJ, MG...                               | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| regiao                      | string  | Região da cidade                  | Norte, Sul, Sudeste, Centro-Oeste, Nordeste | -       | Silver / Gold | IBGE / petstore-etl | 2025-10-08         |
+| populacao                   | integer | População estimada da cidade      | Número inteiro                              | pessoas | Silver / Gold | IBGE / petstore-etl | 2025-10-08         |
+| cep                         | string  | CEP normalizado                   | 00000-000                                   | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
+| latitude                    | float   | Latitude geográfica               | -90 a 90                                    | graus   | Silver / Gold | petstore-etl        | 2025-10-08         |
+| longitude                   | float   | Longitude geográfica              | -180 a 180                                  | graus   | Silver / Gold | petstore-etl        | 2025-10-08         |
+| renda_domiciliar_per_capita | float   | Renda domiciliar média (estadual) | Valores monetários                          | R$      | Silver / Gold | IBGE / petstore-etl | 2025-10-08         |
+| cidade_cod_ibge             | string  | Código IBGE da cidade             | 7 dígitos, conforme IBGE                    | -       | Silver / Gold | IBGE / petstore-etl | 2025-10-08         |
+| data_extracao               | date    | Data da extração do dado          | YYYY-MM-DD                                  | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
 ---
 
 ## 🧩 Fluxo de Dados
@@ -73,3 +74,13 @@ graph TD
 Dados Gold consumidos a partir de um banco de dados PostgreSQL disponibilizado pelo repositório [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl).
 
 Dados brutos originalmente extraídos e estruturados pelo repositório [`petstore-scraping`](https://github.com/rafa-trindade/petstore-scraping).
+
+---
+
+## 🏪 Redes Analisadas
+
+Atualmente, o projeto coleta dados das seguintes redes para estudo:
+
+* **Cobasi**
+* **Petland**
+* **Petz**
