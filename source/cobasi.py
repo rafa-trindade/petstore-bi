@@ -130,7 +130,7 @@ def cobasi_analysis():
 
         # --- Mapa ---
         with st.container():
-            fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
+            fig = maps.mapa_empresas(df_filtrado, estado_sel, cidade_sel)
             if fig is not None:
                 maps.geojson_maps(fig, regiao_sel, estado_sel)
             else:

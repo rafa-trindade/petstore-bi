@@ -34,7 +34,7 @@ def mapa_geral(df, est, cid):
             hoverinfo="text"
         )
 
-        return fig
+    return fig
 
 
 def mapa_empresas(df, est, cid):
@@ -90,8 +90,7 @@ def geojson_maps(fig, reg, est):
         autocolorscale=False
     ))
 
-    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), legend=dict(x=0, y=1))
     st.plotly_chart(fig, use_container_width=True)
 
 
