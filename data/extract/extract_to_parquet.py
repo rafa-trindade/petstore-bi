@@ -2,7 +2,7 @@ import pandas as pd
 from config.db_config import engine
 from datetime import datetime
 
-CSV_PATH = "data/lojas.parquet"
+PARQUET_PATH = "data/lojas.parquet"
 
 def extract_to_parquet():
 
@@ -14,7 +14,7 @@ def extract_to_parquet():
 
     df_lojas['ultima_atualizacao'] = datetime.today().strftime('%d/%m/%Y')
 
-    df_lojas.to_parquet(CSV_PATH, index=False)
+    df_lojas.to_parquet(PARQUET_PATH, index=False)
 
-    print(f"{len(df_lojas)} registros salvos em {CSV_PATH}")
+    print(f"{len(df_lojas)} registros salvos em {PARQUET_PATH}")
 
