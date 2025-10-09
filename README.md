@@ -8,7 +8,7 @@ Esta etapa consome os dados Gold armazenados em um banco de dados PostgreSQL e p
 
 ---
 
-## 📌 Descrição
+## 📌 Descrição:
 
 O `petstore-bi` consome os dados finais (Gold) gerados pelo `petstore-etl` e realiza:
 
@@ -18,7 +18,7 @@ O `petstore-bi` consome os dados finais (Gold) gerados pelo `petstore-etl` e rea
 
 ---
 
-## 📊 Estrutura dos Dados e Metadados
+## 📊 Estrutura dos Dados e Metadados:
 
 O projeto inicia com as colunas abaixo, contendo dados oriundos do projeto [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) carregados no PostgreSQL, que serão enriquecidos progressivamente com informações analíticas para suporte a decisões de expansão.
 
@@ -40,7 +40,7 @@ O projeto inicia com as colunas abaixo, contendo dados oriundos do projeto [`pet
 | data_extracao               | date    | Data da extração do dado          | YYYY-MM-DD                                  | -       | Silver / Gold | petstore-etl        | 2025-10-08         |
 ---
 
-## 🧩 Fluxo de Dados
+## 🧩 Fluxo de Dados:
 
 ```mermaid
 graph TD
@@ -50,17 +50,17 @@ graph TD
 
 ---
 
-## 📊 Estrutura do Projeto Final
+## 📊 Estrutura Geral do Projeto:
 
 | Repositório | Função | Camada | Principais Tecnologias |
 | ----------------- | ----------------------------- | ------------------ | -------------------------------------- |
 | [`petstore-scraping`](https://github.com/rafa-trindade/petstore-scraping) | Coleta de Dados de Franquias | 🟤 Bronze | Selenium, BeautifulSoup4, lxml, pandas |
-| [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) | Limpeza, Padronização e Carga | ⚪ Silver / 🟡 Gold | pandas, brazilcep, requests, numpy, tabulate, SQLAlchemy, psycopg2-binary, python-dotenv |
+| [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl) | Limpeza, Padronização e Carga | ⚪ Silver / 🟡 Gold | requests, SQLAlchemy, pandas, Cep Aberto (API) |
 | [`petstore-bi`](https://github.com/rafa-trindade/petstore-bi) | BI e Dashboards | 📊 BI | Streamlit, Plotly, pandas |
 
 ---
 
-## ⚙️ Tecnologias e bibliotecas
+## ⚙️ Tecnologias e Bibliotecas `petstore-bi`:
 
 * [**pandas**](https://pypi.org/project/pandas/) → manipulação e análise de dados tabulares
 * [**plotly**](https://pypi.org/project/plotly/) → visualizações interativas
@@ -69,17 +69,17 @@ graph TD
 
 ---
 
-## 🔗 Integração com repositórios anteriores
+## 🔗 Integração com Repositórios Anteriores:
 
 Dados Gold consumidos a partir de um banco de dados PostgreSQL disponibilizado pelo repositório [`petstore-etl`](https://github.com/rafa-trindade/petstore-etl).
 
-Dados brutos originalmente extraídos e estruturados pelo repositório [`petstore-scraping`](https://github.com/rafa-trindade/petstore-scraping).
+Dados Bronze originalmente extraídos pelo repositório [`petstore-scraping`](https://github.com/rafa-trindade/petstore-scraping).
 
 ---
 
 ## 🏪 Redes Analisadas
 
-Atualmente, o projeto coleta dados das seguintes redes para estudo:
+Atualmente, o projeto coleta dados públicos das seguintes redes para estudo:
 
 * **Cobasi**
 * **Petland**
