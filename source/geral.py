@@ -1,9 +1,10 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 from . import utils as util
 import numpy as np
-
+import json
 
 @st.cache_data
 def load_data():
@@ -139,6 +140,40 @@ def geral_analysis():
                 hover_data=["empresa", "nome", "logradouro", "bairro", "cidade", "estado"],
                 height=600
             )
+
+            with open("source/utils/br_states.geojson", "r") as f:
+                geojson = json.load(f)
+
+            locations = [f["properties"]["sigla"] for f in geojson["features"]]
+
+            z = [0]*len(locations)
+            line_widths = [0.4]*len(locations)
+            line_colors = ["#5A7DA2"]*len(locations)
+
+            if regiao_sel != "Todas" and estado_sel == "Todos":
+                estados_da_regiao = util.regioes[regiao_sel]  # pega os estados da região
+                z = [1 if sigla in estados_da_regiao else 0 for sigla in locations]
+                line_widths = [1 if sigla in estados_da_regiao else 0.4 for sigla in locations]
+                line_colors = ["#5A7DA2" if sigla in estados_da_regiao else "#5A7DA2" for sigla in locations]
+
+            elif estado_sel != "Todos":
+                z = [1 if sigla == estado_sel else 0 for sigla in locations]
+                line_widths = [1 if sigla == estado_sel else 0.4 for sigla in locations]
+                line_colors = ["#5A7DA2" if sigla == estado_sel else "#5A7DA2" for sigla in locations]
+
+            # Criar Choropleth
+            fig.add_trace(go.Choroplethmapbox(
+                geojson=geojson,
+                locations=locations,
+                z=z,
+                colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],      
+                showscale=False,
+                marker_line_width=line_widths,
+                marker_line_color=line_colors,
+                featureidkey="properties.sigla",
+                hoverinfo="skip",
+                autocolorscale=False
+            ))
 
             for empresa in df_filtrado["empresa"].unique():
                 df_emp = df_filtrado[df_filtrado["empresa"] == empresa]

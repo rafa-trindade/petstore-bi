@@ -1,8 +1,11 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 from . import utils as util
+from shapely.geometry import shape
 import numpy as np
+import json
 
 
 @st.cache_data
@@ -23,6 +26,7 @@ def cobasi_analysis():
         col1, col2, col3 = st.columns(3)
 
         regioes_disp = ["Todas"] + list(util.regioes.keys())
+
         with col1:
             regiao_sel = st.selectbox("Região:", regioes_disp)
 
@@ -36,20 +40,21 @@ def cobasi_analysis():
         else:
             estados_disp = ["Todos"] 
 
+
         with col2:
             estado_sel = st.selectbox("Estado:", estados_disp, disabled=(regiao_sel == "Todas"))
 
-
         df_temp = df_cobasi.copy()
+
         if regiao_sel != "Todas" and estado_sel != "Todos":
             df_temp = df_temp[df_temp["estado"] == estado_sel]
             cidades_disp = ["Todas"] + sorted(df_temp["cidade"].dropna().unique().tolist())
         else:
             cidades_disp = ["Todas"]
 
+
         with col3:
             cidade_sel = st.selectbox("Cidade:", cidades_disp, disabled=(estado_sel == "Todos" or regiao_sel == "Todas"))
-
 
         df_filtrado = df_cobasi.copy()
         if regiao_sel != "Todas":
@@ -59,6 +64,8 @@ def cobasi_analysis():
         if cidade_sel != "Todas":
             df_filtrado = df_filtrado[df_filtrado["cidade"] == cidade_sel]
 
+        
+        # - Métricas
         total_cidades = df_filtrado["cidade"].nunique()
         total_estados = 1 if estado_sel != "Todos" else df_filtrado["estado"].nunique()
 
@@ -74,6 +81,7 @@ def cobasi_analysis():
         if cidade_sel != "Todas":
             df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["nome"] == cidade_sel]
 
+        
         total_cidades_brasil = len(df_ibge_filtrado)
         total_estados_brasil = df_ibge_filtrado["UF_sigla"].nunique() if estado_sel == "Todos" else 1
 
@@ -81,9 +89,9 @@ def cobasi_analysis():
         cobertura_estados = (total_estados / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
 
      
+
         col4, col5, col6, col7 = st.columns(4)
 
-        # Métrica: Quantidade de lojas
         with col4:
             if cidade_sel != "Todas":
                 titulo_lojas = "Lojas |\n" + cidade_sel
@@ -95,7 +103,6 @@ def cobasi_analysis():
                 titulo_lojas = "Lojas | Brasil"
             st.metric(label=titulo_lojas, value=f"{len(df_filtrado)}")
 
-        # Métrica: Cobertura de estados
         with col6:
             if estado_sel == "Todos":
                 if regiao_sel == "Todas":
@@ -106,7 +113,6 @@ def cobasi_analysis():
             else:
                 st.metric("Estado:", estado_sel)
 
-        # Métrica: Cobertura de cidades
         with col7:
             if cidade_sel == "Todas":
                 if regiao_sel == "Todas":
@@ -123,8 +129,10 @@ def cobasi_analysis():
 
 
 
-
         with st.container(border=True):
+
+            with open("source/utils/br_states.geojson", "r") as f:
+                geojson = json.load(f)
 
             lat_center, lon_center, zoom = util.calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel)
 
@@ -140,6 +148,38 @@ def cobasi_analysis():
                 height=600
 
             )
+            
+            locations = [f["properties"]["sigla"] for f in geojson["features"]]
+
+            z = [0]*len(locations)
+            line_widths = [0.4]*len(locations)
+            line_colors = ["#5A7DA2"]*len(locations)
+
+            if regiao_sel != "Todas" and estado_sel == "Todos":
+                estados_da_regiao = util.regioes[regiao_sel]  # pega os estados da região
+                z = [1 if sigla in estados_da_regiao else 0 for sigla in locations]
+                line_widths = [1 if sigla in estados_da_regiao else 0.4 for sigla in locations]
+                line_colors = ["#5A7DA2" if sigla in estados_da_regiao else "#5A7DA2" for sigla in locations]
+
+            elif estado_sel != "Todos":
+                z = [1 if sigla == estado_sel else 0 for sigla in locations]
+                line_widths = [1 if sigla == estado_sel else 0.4 for sigla in locations]
+                line_colors = ["#5A7DA2" if sigla == estado_sel else "#5A7DA2" for sigla in locations]
+
+            fig.add_trace(go.Choroplethmapbox(
+                geojson=geojson,
+                locations=locations,
+                z=z,
+                colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],      
+                showscale=False,
+                marker_line_width=line_widths,
+                marker_line_color=line_colors,
+                featureidkey="properties.sigla",
+                hoverinfo="skip",
+                autocolorscale=False
+            ))
+
+
             fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
 
             st.plotly_chart(fig, use_container_width=True)

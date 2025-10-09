@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px 
 import requests
 
 
@@ -29,7 +30,6 @@ def municipios_ibge():
     return df
 
 
-
 regioes = {
     "Norte": ["AC","AP","AM","PA","RO","RR","TO"],
     "Nordeste": ["AL","BA","CE","MA","PB","PE","PI","RN","SE"],
@@ -37,6 +37,7 @@ regioes = {
     "Sudeste": ["ES","MG","RJ","SP"],
     "Sul": ["PR","RS","SC"]
 }
+
 
 def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
 
@@ -54,6 +55,16 @@ def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
     else:
         return default_lat, default_lon, default_zoom
 
+
+
+azul = "#2d5480" 
+azul_escuro = "#2d5c80"
+verde = "#176f87"
+verde_claro = px.colors.sequential.Darkmint[3]
+verde_escuro = "#176f87"
+vermelha = "#a22938"
+cinza_claro = "#c6d0d2"
+cinza_escuro = "#c6d0d2"
 
 def aplicar_estilo():
     st.markdown(

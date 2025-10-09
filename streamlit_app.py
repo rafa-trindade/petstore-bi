@@ -5,7 +5,6 @@ import source.utils as util
 from source.cobasi import cobasi_analysis
 from source.petland import petland_analysis
 from source.petz import petz_analysis
-from source.pop_pet import pop_pet_analysis
 from source.geral import geral_analysis
 
 st.set_page_config(
@@ -30,7 +29,6 @@ empresa_source = {
     "Cobasi": cobasi_analysis,
     "Petland": petland_analysis,
     "Petz": petz_analysis,
-    "Pop Pet": pop_pet_analysis
 }
 
 func = empresa_source.get(empresa, geral_analysis)
