@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from . import utils as util
-import numpy as np
 
 @st.cache_data
 def load_data():

@@ -3,7 +3,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from . import utils as util
-import numpy as np
 import json
 
 @st.cache_data
