@@ -1,4 +1,4 @@
-﻿cidade;estado;populacao;cidade_normalizada;cidade_cod_ibge;cidade_regiao;renda_domiciliar_per_capita
+﻿cidade;estado;populacao;cidade_normalizada;cod_cidade;regiao;renda_domiciliar_per_capita
 São Paulo ;SP;11895578.0;Sao Paulo ;3500105.0;Sudeste;2662.0
 Rio de Janeiro ;RJ;6729894.0;Rio de Janeiro ;3300100.0;Sudeste;2490.0
 Brasília ;DF;2982818.0;Brasilia ;5300108.0;Centro-Oeste;3444.0

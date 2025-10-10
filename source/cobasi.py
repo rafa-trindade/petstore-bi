@@ -8,7 +8,7 @@ from .utils import maps as maps
 def load_data():
     df = pd.read_parquet("data/lojas.parquet")
     df = df[df["empresa"].str.lower() == "cobasi"]
-    df = df.dropna(subset=["latitude", "longitude"])
+    df = df.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
     return df
 
 def cobasi_analysis():
@@ -42,7 +42,7 @@ def cobasi_analysis():
             df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
 
         with col4:
-            pop_ranges = ["Geral (todas as cidades)", "> 50.000 habitantes", "> 100.000 habitantes", "> 250.000 habitantes", "> 500.000 habitantes"]
+            pop_ranges = ["> 50.000 habitantes", "> 100.000 habitantes", "> 250.000 habitantes", "> 500.000 habitantes", "> 1.000.000 habitantes", "Geral (todas as cidades)"]
             pop_sel = st.selectbox("População:", pop_ranges, key="pop_select")  # ainda aparece apenas como filtro de cidades
 
         df_temp = df_filtrado.copy()

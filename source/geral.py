@@ -8,7 +8,7 @@ from .utils import maps as maps
 @st.cache_data
 def load_data():
     df = pd.read_parquet("data/lojas.parquet")
-    df = df.dropna(subset=["latitude", "longitude"])
+    df = df.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
     return df
 
 
@@ -16,6 +16,7 @@ def geral_analysis():
     df_geral = load_data()
     
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  # colunas: cidade, estado, populacao
+
 
     tab1, tab2, tab3 = st.tabs(["🗺️ Cobertura", "Concorrência", "Expansão"])
 
@@ -43,7 +44,7 @@ def geral_analysis():
             df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
 
         with col4:
-            pop_ranges = ["Geral (todas as cidades)", "> 50.000 habitantes", "> 100.000 habitantes", "> 250.000 habitantes", "> 500.000 habitantes"]
+            pop_ranges = ["> 50.000 habitantes", "> 100.000 habitantes", "> 250.000 habitantes", "> 500.000 habitantes", "> 1.000.000 habitantes", "Geral (todas as cidades)"]
             pop_sel = st.selectbox("População:", pop_ranges, key="pop_select")  # ainda aparece apenas como filtro de cidades
 
         df_temp = df_filtrado.copy()
@@ -62,6 +63,7 @@ def geral_analysis():
             df_filtrado = df_filtrado[df_filtrado.groupby("cidade")["populacao"].transform("first") > pop_min]
 
         df_ibge_filtrado = df_ibge.copy()
+        
         if regiao_sel != "Todas":
             df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["estado"].isin(util.regioes[regiao_sel])]
         if estado_sel != "Todos":
@@ -81,7 +83,7 @@ def geral_analysis():
 
         cobertura_cidades = (total_cidades / total_cidades_brasil) * 100 if total_cidades_brasil > 0 else 0
         cobertura_estados = (total_estados / total_estados_brasil) * 100 if total_estados_brasil > 0 else 0
-        #st.write(total_cidades)
+        #   st.write(total_cidades)
         #st.write(total_cidades_brasil)
 
 
