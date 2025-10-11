@@ -44,20 +44,36 @@ def mapa_geral(df, est, cid):
 
     return fig
 
-def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponiveis):
+def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponiveis, empresa):
+    # Calcula o centro do mapa
     lat_center, lon_center, zoom = calcula_centro_mapa_mini(df, estado_sel, cidade_sel)
 
+    # Normaliza os nomes das empresas
     df["empresa_clean"] = df["empresa"].str.strip().str.title()
+    empresa = empresa.title()
+    empresa_sel = empresa_sel.title()
 
+    # 🔍 --- FILTRO DE EMPRESAS ---
+    if empresa_sel != "Todas":
+        # mostra apenas a empresa base e a selecionada
+        df = df[df["empresa_clean"].str.lower().isin([empresa.lower(), empresa_sel.lower()])]
+
+    # Paleta e cores
     paleta = px.colors.sequential.Darkmint_r
     cores = {}
-    cores["Cobasi"] = paleta[0]
+    cores[empresa] = paleta[0]
 
     if empresa_sel != "Todas":
-        cores[empresa_sel.title()] = paleta[2]
-        empresas_restantes = [e for e in empresas_disponiveis if e.lower() != "cobasi" and e.lower() != empresa_sel.lower()]
+        cores[empresa_sel] = paleta[2]
+        empresas_restantes = [
+            e for e in empresas_disponiveis
+            if e.lower() not in [empresa.lower(), empresa_sel.lower()]
+        ]
     else:
-        empresas_restantes = [e for e in empresas_disponiveis if e.lower() != "cobasi"]
+        empresas_restantes = [
+            e for e in empresas_disponiveis
+            if e.lower() != empresa.lower()
+        ]
 
     for i, e in enumerate(empresas_restantes):
         cor_index = i + 2
@@ -65,8 +81,10 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
             cor_index = cor_index % len(paleta)
         cores[e.title()] = paleta[cor_index]
 
+    # Aplica as cores ao DF filtrado
     df["color"] = df["empresa_clean"].map(cores)
 
+    # Cria o mapa
     fig = go.Figure()
 
     fig.add_scattermapbox(
@@ -75,7 +93,7 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
         mode="markers",
         marker=dict(
             size=10,
-            color=df["color"],  
+            color=df["color"],
             showscale=False
         ),
         text=df["empresa_clean"] + " - " + df["cidade"] + "-" + df["estado"],
@@ -95,6 +113,7 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
     )
 
     return fig
+
 
 
 

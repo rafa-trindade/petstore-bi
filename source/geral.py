@@ -21,7 +21,8 @@ def geral_analysis():
     tab1, tab2 = st.tabs(["🗺️ Visão Geral", "-"])
 
     with tab1:
-        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+        with st.container(border=True):
+            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 
         regioes_disp = ["Todas"] + list(util.regioes.keys())
         with col1:
@@ -92,11 +93,12 @@ def geral_analysis():
 
         with col4:
         # --- Mapa ---
-            fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
-            if fig is not None:
-                maps.geojson_maps(fig, regiao_sel, estado_sel)
-            else:
-                st.warning("Não há dados para exibir no mapa.")
+            with st.container(border=True):
+                fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
+                if fig is not None:
+                    maps.geojson_maps(fig, regiao_sel, estado_sel)
+                else:
+                    st.warning("Não há dados para exibir no mapa.")
 
         with col5:
             #-------------------------------

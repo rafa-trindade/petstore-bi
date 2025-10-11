@@ -3,8 +3,14 @@ import pandas as pd
 import source.utils.utils as util
 
 from source.cobasi import cobasi_analysis
+from source.petcamp import petcamp_analysis
 from source.petland import petland_analysis
+from source.petlove import petlove_analysis
 from source.petz import petz_analysis
+from source.poppet import pop_pet_analysis
+
+
+
 from source.geral import geral_analysis
 
 st.set_page_config(
@@ -52,8 +58,11 @@ empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
 empresa_source = {
     "Todas": geral_analysis,
     "Cobasi": cobasi_analysis,
+    "Petcamp": petcamp_analysis,
     "Petland": petland_analysis,
+    "Petlove": petlove_analysis,
     "Petz": petz_analysis,
+    "Pop Pet Center": pop_pet_analysis
 }
 
 func = empresa_source.get(empresa, geral_analysis)
