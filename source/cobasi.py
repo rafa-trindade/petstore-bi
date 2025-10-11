@@ -28,20 +28,29 @@ def cobasi_analysis():
         df_geral = pd.read_parquet("data/lojas.parquet")
         df_geral = df_geral.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
 
-        with st.container(border=True):
 
+        mostrar_empresa = False  # controle booleano
+
+        if mostrar_empresa:
             col_empresa, col1, col2, col3, col4 = st.columns([1, 1, 1, 1, 1])
 
-        empresas_disponiveis = sorted(df_geral["empresa"].str.title().dropna().unique().tolist())
-        empresas_disponiveis = [e for e in empresas_disponiveis if e.lower() != "cobasi"]
-        empresas_disp_selectbox = ["Todas"] + empresas_disponiveis
+            empresas_disponiveis = sorted(df_geral["empresa"].str.title().dropna().unique().tolist())
+            empresas_disponiveis = [e for e in empresas_disponiveis if e.lower() != "cobasi"]
+            empresas_disp_selectbox = ["Todas"] + empresas_disponiveis
 
-        with col_empresa:
-            empresa_sel = st.selectbox(
-                "Empresa para Destaque:",
-                empresas_disp_selectbox,
-                key="empresa_select_tab1"
-            )
+            with col_empresa:
+                with col_empresa:
+                    empresa_sel = st.selectbox(
+                        "Empresa para Destaque:",
+                        empresas_disp_selectbox,
+                        key="empresa_select_tab1",
+                        disabled=True
+                    )
+        else:
+            with st.container(border=True):
+
+                col1, col2, col3, col4 = st.columns([ 1, 1, 1, 1])
+                empresa_sel = "Todas"
 
         regioes_disp = ["Todas"] + list(util.regioes.keys())
         with col1:
