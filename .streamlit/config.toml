@@ -1,6 +1,6 @@
 [theme]
 # Primary accent color for interactive elements.
-primaryColor = "#2d5480"
+primaryColor = "#123F5A"
 
 # Background color for the main content area.
 backgroundColor = "#E4E3E3"
@@ -9,7 +9,7 @@ backgroundColor = "#E4E3E3"
 secondaryBackgroundColor = "#c6d0d2"
 
 # Color used for almost all text.
-textColor = "#2B5482"
+textColor = "#123F5A"
 
 # Font family for all text in the app, except code blocks. One of "sans serif", "serif", or "monospace".
 # Default: "sans serif"

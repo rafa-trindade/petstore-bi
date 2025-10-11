@@ -13,13 +13,38 @@ st.set_page_config(
     initial_sidebar_state="expanded", 
     page_icon="🗺️")
 
-sidebar_logo = "https://i.postimg.cc/9QYBgffr/logo-pettore.png"
-main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
-st.logo(sidebar_logo, icon_image=main_body_logo)
+
+st.sidebar.markdown(
+    """
+    <style>
+    /* Logo customizado */
+    .custom-sidebar-logo {
+        position: relative;   /* permite mover com top */
+        top: -30px;           /* desloca para cima */
+        display: flex;
+        justify-content: center;
+        margin-bottom: -23px;  /* espaço para itens abaixo */
+        z-index: 10;          /* sobreposição */
+    }
+    .custom-sidebar-logo img {
+        max-width: 220px; 
+        height: auto;
+        border-radius: 7px;
+    }
+    </style>
+    <div class="custom-sidebar-logo">
+        <a href="https://github.com/rafa-trindade/petstore-pipeline" target="_blank">
+            <img src="https://img.shields.io/badge/petstore--pipeline-123F5A?style=for-the-badge&logo=github&logoColor=fff&logoWidth=40&scale=1" />
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 df_lojas = pd.read_parquet("data/lojas.parquet")
 
-empresas_unicas = df_lojas['empresa'].str.title ().sort_values().unique().tolist()
+empresas_unicas = df_lojas['empresa'].str.title().sort_values().unique().tolist()
 opcoes = ["Todas"] + empresas_unicas
     
 empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)

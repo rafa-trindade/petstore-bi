@@ -15,10 +15,10 @@ def load_data():
 def geral_analysis():
     df_geral = load_data()
     
-    df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  # colunas: cidade, estado, populacao
+    df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  
 
 
-    tab1, tab2, tab3 = st.tabs(["🗺️ Cobertura", "Concorrência", "Expansão"])
+    tab1, tab2 = st.tabs(["🗺️ Visão Geral", "-"])
 
     with tab1:
         col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
@@ -87,54 +87,58 @@ def geral_analysis():
         #st.write(total_cidades_brasil)
 
 
-        col4, col5, col6, col7 = st.columns(4)
+        col4, col5 = st.columns([3,2])
 
         with col4:
-            if cidade_sel != "Todas":
-                titulo_lojas = "Lojas |\n" + cidade_sel
-            elif estado_sel != "Todos":
-                titulo_lojas = "Lojas |\n" + estado_sel
-            elif regiao_sel != "Todas":
-                titulo_lojas = "Lojas |\n" + regiao_sel
+        # --- Mapa ---
+            fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
+            if fig is not None:
+                maps.geojson_maps(fig, regiao_sel, estado_sel)
             else:
-                titulo_lojas = "Lojas | Brasil"
-            st.metric(label=titulo_lojas, value=f"{len(df_filtrado)}")
+                st.warning("Não há dados para exibir no mapa.")
 
         with col5:
-            if estado_sel == "Todos":
-                titulo_estado = f"Cobertura de Estados | {'Brasil' if regiao_sel == 'Todas' else regiao_sel} (%)"
-                st.metric(titulo_estado, f"{cobertura_estados:.2f}%")
+            #-------------------------------
+            if cidade_sel != "Todas":
+                titulo_lojas = f"Total Lojas | {cidade_sel}: "
+            elif estado_sel != "Todos":
+                titulo_lojas = f"Total Lojas | {estado_sel}: "
+            elif regiao_sel != "Todas":
+                titulo_lojas = f"Total Lojas | {regiao_sel}: "
             else:
-                st.metric("Estado:", estado_sel)
+                titulo_lojas = "Total Lojas | Brasil: "
+            col5.success(f"{titulo_lojas} {len(df_filtrado)}", icon=":material/store:")
 
-        with col6:
+            #-------------------------------
+
+            if estado_sel == "Todos":
+                titulo_estado = f"Cobertura dos Estados | {'Brasil: ' if regiao_sel == 'Todas' else regiao_sel}: "
+                col5.info(f"{titulo_estado} {cobertura_estados:.2f}%", icon=":material/map:")  
+            else:
+                col5.info(f"Estado: {estado_sel}", icon=":material/map:")
+
+            #-------------------------------
+
             if cidade_sel == "Todas":
                 label_base = "Brasil" if regiao_sel == "Todas" else (regiao_sel if estado_sel == "Todos" else estado_sel)
                 if pop_sel == "Geral (todas as cidades)":
-                    titulo_cidade = f"Cobertura de Cidades | {label_base} (%)"
+                    titulo_cidade = f"Cobertura das Cidades | {label_base}"
                 else:
-                    titulo_cidade = f'Cobertura de Cidades {pop_sel} | {label_base} (%)'
+                    titulo_cidade = f'Cobertura das Cidades {pop_sel} | {label_base}'
                 valor_cidade = f"{cobertura_cidades:.2f}%"
             else:
                 titulo_cidade = "Cidade:"
                 valor_cidade = cidade_sel
-            st.metric(label=titulo_cidade, value=valor_cidade)
+            col5.error(f"{titulo_cidade} {valor_cidade}", icon=":material/location_city:")  
 
-        with col7:
+            #-------------------------------
+
             if cidade_sel != "Todas":
                 df_cidade = df_filtrado[df_filtrado["cidade"] == cidade_sel]
                 if not df_cidade.empty:
                     pop_cidade = df_cidade["populacao"].dropna().iloc[0]
                 else:
                     pop_cidade = 0
-                st.metric(label=f"População | {cidade_sel}", value=f"{int(pop_cidade):,}".replace(",", "."))
+                col5.info(f"População: {int(pop_cidade):,} habitantes".replace(",", "."),  icon=":material/demography:")
 
-
-
-        # --- Mapa ---
-        with st.container():
-            fig = maps.mapa_geral(df_filtrado, estado_sel, cidade_sel)
-            if fig is not None:
-                maps.geojson_maps(fig, regiao_sel, estado_sel)
-            else:
-                st.warning("Não há dados para exibir no mapa.")
+            #-------------------------------
