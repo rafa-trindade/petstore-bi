@@ -122,9 +122,9 @@ def geral_analysis():
             if cidade_sel == "Todas":
                 label_base = "Brasil" if regiao_sel == "Todas" else (regiao_sel if estado_sel == "Todos" else estado_sel)
                 if pop_sel == "Geral (todas as cidades)":
-                    titulo_cidade = f"Cobertura das Cidades | {label_base}"
+                    titulo_cidade = f"Cob. Cidades | {label_base}"
                 else:
-                    titulo_cidade = f'Cobertura das Cidades {pop_sel} | {label_base}'
+                    titulo_cidade = f'Cob. Cidades {pop_sel} | {label_base}'
                 valor_cidade = f"{cobertura_cidades:.2f}%"
             else:
                 titulo_cidade = "Cidade:"

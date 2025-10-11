@@ -87,7 +87,7 @@ def cobasi_analysis():
         #st.write(total_cidades_brasil)
 
 
-        col4, col5 = st.columns([3,1])
+        col4, col5 = st.columns([3,2])
 
         with col4:
         # --- Mapa ---
