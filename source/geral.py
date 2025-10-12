@@ -18,7 +18,7 @@ def geral_analysis():
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  
 
 
-    st.success("**Visão Geral** | empresas list ", icon=":material/store:")
+    st.success("**Visão Geral** | Todas as Empresas ", icon=":material/store:")
 
 
 
