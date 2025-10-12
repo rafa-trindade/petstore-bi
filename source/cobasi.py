@@ -278,13 +278,13 @@ def cobasi_analysis():
 
 
         st.markdown(f"""
-        |GAP| {df_okr1["numero_cidades"]} Cidades - Região {filtro}  | Indicador |
+        |GAP| Top {df_okr1["numero_cidades"]} Cidades - Região {filtro}  | Indicador |
         |----------|----------------------------------------|--------------------------|
         | GAP-OKR1 | {df_okr1["cidades_ausentes"]}          |Cidades >250 mil habitantes sem presença da Cobasi |
         """, unsafe_allow_html=True)
 
         st.markdown(f"""
-        |GAP| {df_okr7["numero_cidades"]} Cidades - Região {filtro}|Indicador |
+        |GAP| Top {df_okr7["numero_cidades"]} Cidades - Região {filtro}|Indicador |
         |----------|----------------------------------------| --------------------------|
         | GAP-OKR7 | {df_okr7["cidades_prioritarias"]}    | Cidades com alta concentração de mercado e baixa ou nula penetração da Cobasi |
         """, unsafe_allow_html=True)

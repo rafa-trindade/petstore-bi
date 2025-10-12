@@ -11,7 +11,7 @@ def popopulacao_250K (df_empresa, df_ibge, range_pop = 250000):
   cobasi_250k = df_empresa[df_empresa['populacao'] > 250000][['cidade', 'estado']]
   cidades_nao_contadas = ibge_250k.merge(cobasi_250k, on=['cidade', 'estado'], how='left', indicator=True)
   cidades_nao_contadas = cidades_nao_contadas[cidades_nao_contadas['_merge'] == 'left_only']
-  cidades_nao_contadas = cidades_nao_contadas.sort_values(by='populacao', ascending=False)
+  cidades_nao_contadas = cidades_nao_contadas.sort_values(by='populacao', ascending=False).head(10)
   lista_cidades_nao_contadas = (cidades_nao_contadas
                               .apply(lambda row: f"{row['cidade']}-{row['estado']}", axis=1)
                               .tolist())
@@ -88,7 +88,7 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
 
   # === 5. lista de cidades prioritárias ===
   cidades_prioritarias = df_analise[df_analise["gap_expansao"]]
-  lista_cidades = cidades_prioritarias.apply(lambda x: f"{x['cidade']}-{x['estado']}", axis=1).tolist()
+  lista_cidades = cidades_prioritarias.apply(lambda x: f"{x['cidade']}-{x['estado']}", axis=1).head(10).tolist()
   texto_cidades = ", ".join(lista_cidades)
 
   resumo = {
