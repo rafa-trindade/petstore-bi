@@ -17,10 +17,14 @@ def geral_analysis():
     
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  
 
+    qtd_empresas = df_geral['empresa'].nunique()
 
-    st.success("**Visão Geral** | Todas as Empresas ", icon=":material/store:")
-
-
+    col_1, col_2 = st.columns([3,1])
+    with col_1:
+        st.success("**Visão Geral** | Todas as Empresas ", icon=":material/store:")
+    with col_2:
+        st.info(f"Cobertura: {qtd_empresas} empresas", icon=":material/info:")
+        
 
     with st.container(border=True):
         col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
@@ -90,7 +94,7 @@ def geral_analysis():
     #st.write(total_cidades_brasil)
 
 
-    col4, col5 = st.columns([3,2])
+    col4, col5 = st.columns([3,1])
 
     with col4:
     # --- Mapa ---
@@ -143,6 +147,6 @@ def geral_analysis():
                 pop_cidade = df_cidade["populacao"].dropna().iloc[0]
             else:
                 pop_cidade = 0
-            col5.info(f"População: {int(pop_cidade):,} habitantes".replace(",", "."),  icon=":material/demography:")
+            col5.success(f"População: {int(pop_cidade):,} habitantes".replace(",", "."),  icon=":material/demography:")
 
         #-------------------------------

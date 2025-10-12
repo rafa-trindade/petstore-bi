@@ -14,18 +14,18 @@ def mapa_geral(df, est, cid):
         df,
         lat="latitude",
         lon="longitude",
-        radius=15,
+        radius=10,
         center=dict(lat=lat_center, lon=lon_center),
         zoom=zoom,
         mapbox_style="carto-positron",
         color_continuous_scale="Darkmint_r",
         hover_data=["empresa", "nome", "logradouro", "bairro", "cidade", "estado"],
-        height=600
+        height=400
     )
 
     fig.update_layout(coloraxis_showscale=False)
 
-    cores = px.colors.sequential.Darkmint_r
+    cores = px.colors.sequential.Darkmint_r 
     empresas = df["empresa"].unique()
     num_cores = len(cores)
 
@@ -37,7 +37,7 @@ def mapa_geral(df, est, cid):
             lon=df_emp["longitude"],
             mode="markers",
             name=empresa.title(),
-            marker=dict(size=8, color=cor),
+            marker=dict(size=5, color=cor),
             text=df_emp["nome"].str.title() + " - " + df_emp["cidade"] + "-" + df_emp["estado"],
             hoverinfo="text"
         )
@@ -115,54 +115,6 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
     return fig
 
 
-
-
-def mapa_empresas(df, est, cid):
-    lat_center, lon_center, zoom = calcula_centro_mapa(df, est, cid)
-
-    fig = px.density_mapbox(
-        df,
-        lat="latitude",
-        lon="longitude",
-        radius=15,
-        center=dict(lat=lat_center, lon=lon_center),
-        zoom=zoom,
-        mapbox_style="carto-positron",
-        hover_data=["nome", "cidade", "estado"],
-        height=600,
-        color_continuous_scale=px.colors.sequential.Darkmint_r  
-    )
-
-    fig.update_layout(
-        coloraxis_showscale=False  
-    )
-
-    return fig
-
-def mapa_empresas_mini(df, est, cid):
-    lat_center, lon_center, zoom = calcula_centro_mapa(df, est, cid)
-
-    fig = px.density_mapbox(
-        df,
-        lat="latitude",
-        lon="longitude",
-        radius=15,
-        center=dict(lat=lat_center, lon=lon_center),
-        zoom=zoom,
-        mapbox_style="carto-positron",
-        hover_data=["nome", "cidade", "estado"],
-        height=250
-    )
-
-    fig.update_layout(
-        coloraxis_showscale=False,
-        showlegend=False    
-
-    )
-
-    return fig
-
-
 def geojson_maps(fig, reg, est):
 
     with open("source/utils/br_states.geojson", "r") as f:
@@ -204,7 +156,7 @@ def geojson_maps(fig, reg, est):
 
 def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
 
-    default_lat, default_lon, default_zoom = -15.2350, -53.9253, 3.3  
+    default_lat, default_lon, default_zoom = -15.2350, -53.9253, 2.8  
 
     if not df_filtrado.empty:
         if estado_sel == "Todos" and cidade_sel == "Todas":
