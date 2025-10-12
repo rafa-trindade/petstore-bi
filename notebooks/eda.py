@@ -5,3 +5,10 @@ from utils import eda
 df_lojas = pd.read_parquet("../data/lojas.parquet")
 
 eda(df_lojas)
+
+#%%
+df_lojas[df_lojas['cidade'].isnull()]
+
+#%%
+
+df_lojas = df_lojas.dropna(subset=['populacao'])

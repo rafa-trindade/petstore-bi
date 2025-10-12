@@ -49,6 +49,8 @@ st.sidebar.markdown(
 
 
 df_lojas = pd.read_parquet("data/lojas.parquet")
+df_lojas = df_lojas.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
+
 
 empresas_unicas = df_lojas['empresa'].str.title().sort_values().unique().tolist()
 opcoes = ["Todas"] + empresas_unicas
