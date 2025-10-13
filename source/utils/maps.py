@@ -45,23 +45,17 @@ def mapa_geral(df, est, cid):
     return fig
 
 def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponiveis, empresa):
-    # Calcula o centro do mapa
     lat_center, lon_center, zoom = calcula_centro_mapa_mini(df, estado_sel, cidade_sel)
 
-    # Normaliza os nomes das empresas
     df["empresa_clean"] = df["empresa"].str.strip().str.title()
     empresa = empresa.title()
     empresa_sel = empresa_sel.title()
 
-    # 🔍 --- FILTRO DE EMPRESAS ---
     if empresa_sel != "Todas":
-        # mostra apenas a empresa base e a selecionada
         df = df[df["empresa_clean"].str.lower().isin([empresa.lower(), empresa_sel.lower()])]
 
-    # Paleta e cores
     paleta = px.colors.sequential.Darkmint_r
-    cores = {}
-    cores[empresa] = paleta[0]
+    cores = {empresa: paleta[0]}
 
     if empresa_sel != "Todas":
         cores[empresa_sel] = paleta[2]
@@ -81,26 +75,52 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
             cor_index = cor_index % len(paleta)
         cores[e.title()] = paleta[cor_index]
 
-    # Aplica as cores ao DF filtrado
     df["color"] = df["empresa_clean"].map(cores)
 
-    # Cria o mapa
+    df_empresa = df[df["empresa_clean"] == empresa]
+    df_outros = df[df["empresa_clean"] != empresa]
+
     fig = go.Figure()
 
-    fig.add_scattermapbox(
-        lat=df["latitude"],
-        lon=df["longitude"],
-        mode="markers",
-        marker=dict(
-            size=10,
-            color=df["color"],
-            showscale=False
-        ),
-        text=df["empresa_clean"] + " - " + df["cidade"] + "-" + df["estado"],
-        hoverinfo="text",
-        name=""
-    )
+    if not df_outros.empty:
+        fig.add_scattermapbox(
+            lat=df_outros["latitude"],
+            lon=df_outros["longitude"],
+            mode="markers",
+            marker=dict(
+                size=10,
+                color=df_outros["color"],
+                opacity=0.9,
+                showscale=False
+            ),
+            text=df_outros["empresa_clean"] + " - " + df_outros["cidade"] + "-" + df_outros["estado"],
+            hoverinfo="text",
+            name="Outras"
+        )
 
+    if not df_empresa.empty:
+        # Borda branca simulada
+        fig.add_scattermapbox(
+            lat=df_empresa["latitude"],
+            lon=df_empresa["longitude"],
+            mode="markers",
+            marker=dict(size=10, color="white", opacity=0.9),
+            hoverinfo="none",
+            name=""
+        )
+
+        # Marcador colorido sobre a borda
+        fig.add_scattermapbox(
+            lat=df_empresa["latitude"],
+            lon=df_empresa["longitude"],
+            mode="markers",
+            marker=dict(size=10, color=df_empresa["color"], opacity=1),
+            text=df_empresa["empresa_clean"] + " - " + df_empresa["cidade"] + "-" + df_empresa["estado"],
+            hoverinfo="text",
+            name=empresa
+        )
+
+    # Layout
     fig.update_layout(
         mapbox=dict(
             style="carto-positron",

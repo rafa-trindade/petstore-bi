@@ -17,13 +17,13 @@ def geral_analysis():
     
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig")  
 
-    qtd_empresas = df_geral['empresa'].nunique()
+    ultima_atualizacao = df_geral.loc[0, 'ultima_atualizacao']
 
     col_1, col_2 = st.columns([3,1])
     with col_1:
         st.success("**Visão Geral** | Todas as Empresas ", icon=":material/store:")
     with col_2:
-        st.info(f"Cobertura: {qtd_empresas} Empresas", icon=":material/info:")
+        st.info(f"Úlima Atualização: {ultima_atualizacao}", icon=":material/info:")
         
 
     with st.container(border=True):
