@@ -71,13 +71,13 @@ func = empresa_source.get(empresa, geral_analysis)
 func()
 
 registros = str(len(df_lojas))
-ultima_atualizacao = df_lojas.loc[0, 'ultima_atualizacao']
+ultima_extracao = df_lojas.loc[0, 'data_extracao']
 
 col1_side, col2_side = st.sidebar.columns([2,1])
 col1_side.markdown('<h5 style="margin-bottom: -25px;">Registros:', unsafe_allow_html=True)
 col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + registros + '</h5>', unsafe_allow_html=True)
 col1_side.markdown('<h5 style="margin-bottom: -25px;">Última Extração:', unsafe_allow_html=True)
-col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + ultima_atualizacao + '</h5>', unsafe_allow_html=True)
+col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + ultima_extracao + '</h5>', unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 

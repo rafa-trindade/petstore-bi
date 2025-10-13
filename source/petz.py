@@ -22,8 +22,15 @@ def petz_analysis():
 
     df_geral = pd.read_parquet("data/lojas.parquet")
     df_geral = df_geral.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
+    
+    ultima_atualizacao = df_geral.loc[0, 'ultima_atualizacao']
 
-    st.success("**Petz** | Visão Geral", icon=":material/store:")
+
+    col_1, col_2 = st.columns([3,1])
+    with col_1:
+        st.success("**Petz** | Visão Geral", icon=":material/store:")
+    with col_2:
+        st.info(f"Úlima Atualização: {ultima_atualizacao}", icon=":material/info:")
 
     with st.container(border=True):
 

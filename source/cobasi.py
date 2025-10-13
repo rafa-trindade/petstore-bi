@@ -293,19 +293,21 @@ def cobasi_analysis():
 
         st.success("Análise de Expansão (GAP)", icon=":material/map:")
 
-        with st.expander("GAP-OKR1"):
-            st.markdown(f"""
-            |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
-            |----------|----------------------------------------|--------------------------|
-            | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da Cobasi |
-            """, unsafe_allow_html=True)
+        if df_okr1["indice"] != 100:
+            with st.expander("GAP-OKR1"):
+                st.markdown(f"""
+                |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
+                |----------|----------------------------------------|--------------------------|
+                | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da Cobasi |
+                """, unsafe_allow_html=True)
 
-        with st.expander("GAP-OKR2"):
-            st.markdown(f"""
-            |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da Cobasi |
-            """, unsafe_allow_html=True)
+        if df_okr2["indice"] != 100:
+            with st.expander("GAP-OKR2"):
+                st.markdown(f"""
+                |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da Cobasi |
+                """, unsafe_allow_html=True)
 
         with st.expander("GAP-OKR7"):
             st.markdown(f"""
