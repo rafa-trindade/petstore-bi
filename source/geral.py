@@ -23,7 +23,7 @@ def geral_analysis():
     with col_1:
         st.success("**Visão Geral** | Todas as Empresas ", icon=":material/store:")
     with col_2:
-        st.info(f"Cobertura: {qtd_empresas} empresas", icon=":material/info:")
+        st.info(f"Cobertura: {qtd_empresas} Empresas", icon=":material/info:")
         
 
     with st.container(border=True):

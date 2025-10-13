@@ -18,6 +18,8 @@ def load_data():
 def petz_analysis():
     df_petz = load_data()
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig") 
+    df_capitais = pd.read_csv("data/utils/capitais.csv", sep=";", encoding="utf-8-sig") 
+
     df_geral = pd.read_parquet("data/lojas.parquet")
     df_geral = df_geral.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
 
@@ -45,13 +47,16 @@ def petz_analysis():
 
     df_filtrado_tab1 = df_geral.copy()
     df_ibge_filtrado = df_ibge.copy()
+    df_capitais_filtrado = df_capitais.copy()
 
     if regiao_sel != "Todas":
         df_filtrado_tab1 = df_filtrado_tab1[df_filtrado_tab1["estado"].isin(util.regioes[regiao_sel])]
         df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["estado"].isin(util.regioes[regiao_sel])]
+        df_capitais_filtrado =  df_capitais[df_capitais["estado"].isin(util.regioes[regiao_sel])]
     if estado_sel != "Todos":
         df_filtrado_tab1 = df_filtrado_tab1[df_filtrado_tab1["estado"] == estado_sel]
         df_ibge_filtrado = df_ibge_filtrado[df_ibge_filtrado["estado"] == estado_sel]
+        df_capitais_filtrado = df_capitais[df_capitais["estado"] == estado_sel]
 
     with col4:
         pop_ranges = ["Geral (todas as cidades)", "> 50.000 habitantes", "> 100.000 habitantes",
@@ -149,6 +154,10 @@ def petz_analysis():
         # Presença em cidades > 250 mil hab
         df_okr1 = kpi.popopulacao_250K(df_petz_filtrado, df_ibge_filtrado)
         
+
+        # Capitais
+        df_okr2 = kpi.capitais(df_petz_filtrado, df_capitais_filtrado)
+
         # HHI
         df_okr7 = kpi.hhi_regiao(df_petz_filtrado, df_filtrado_tab1)
 
@@ -185,15 +194,15 @@ def petz_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr1["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": "Considera apenas cidades com Petz presente"
+                "Observação": "Considera cidades com Petz presente"
             },
             {
                 "OKR": "OKR2",
                 "Indicador": "Cobertura Capitais Regionais",
                 "Filtro": f"{filtro}",
-                "Atual": f"",
-                "Meta": "100%",
-                "Observação": f"Considera apenas cidades com Petz presente"
+                "Atual": f"{df_okr2["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
+                "Meta": f"100%" if cidade_sel == "Todas" else "-",
+                "Observação": f"Considera capitais com Petz presente"
             },
             {
                 "OKR": "OKR3",
@@ -274,19 +283,27 @@ def petz_analysis():
         st.dataframe(df_okr, use_container_width=True, hide_index=True)
 
 
-        st.success("Pontencial de Expansão (GAP)", icon=":material/map:")
+        st.success("Análise de Expansão (GAP)", icon=":material/map:")
 
+        with st.expander("GAP-OKR1"):
+            st.markdown(f"""
+            |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
+            |----------|----------------------------------------|--------------------------|
+            | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da Petz |
+            """, unsafe_allow_html=True)
 
-        st.markdown(f"""
-        |GAP| Top {df_okr1["numero_cidades"]} Cidades - Região {filtro}  | Indicador |
-        |----------|----------------------------------------|--------------------------|
-        | GAP-OKR1 | {df_okr1["cidades_ausentes"]}          |Cidades >250 mil habitantes sem presença da Petz |
-        """, unsafe_allow_html=True)
+        with st.expander("GAP-OKR2"):
+            st.markdown(f"""
+            |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+            |----------|----------------------------------------| --------------------------|
+            | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da Petz |
+            """, unsafe_allow_html=True)
 
-        st.markdown(f"""
-        |GAP| Top {df_okr7["numero_cidades"]} Cidades - Região {filtro}|Indicador |
-        |----------|----------------------------------------| --------------------------|
-        | GAP-OKR7 | {df_okr7["cidades_prioritarias"]}    | Cidades com alta concentração de mercado e baixa ou nula penetração da Petz |
-        """, unsafe_allow_html=True)
+        with st.expander("GAP-OKR7"):
+            st.markdown(f"""
+            |GAP| {df_okr7["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+            |----------|----------------------------------------| --------------------------|
+            | GAP-OKR7 | {df_okr7["cidades_prioritarias"]} | Cidades com alta concentração de mercado e baixa ou nula penetração da Petz |
+            """, unsafe_allow_html=True)
 
         st.markdown("---")

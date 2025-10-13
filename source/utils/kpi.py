@@ -1,4 +1,6 @@
+import pandas as pd
 import numpy as np
+import streamlit as st
 
 # Presença em cidades > 250 mil hab
 def popopulacao_250K (df_empresa, df_ibge, range_pop = 250000):
@@ -11,7 +13,7 @@ def popopulacao_250K (df_empresa, df_ibge, range_pop = 250000):
   cobasi_250k = df_empresa[df_empresa['populacao'] > 250000][['cidade', 'estado']]
   cidades_nao_contadas = ibge_250k.merge(cobasi_250k, on=['cidade', 'estado'], how='left', indicator=True)
   cidades_nao_contadas = cidades_nao_contadas[cidades_nao_contadas['_merge'] == 'left_only']
-  cidades_nao_contadas = cidades_nao_contadas.sort_values(by='populacao', ascending=False).head(10)
+  cidades_nao_contadas = cidades_nao_contadas.sort_values(by='populacao', ascending=False)
   lista_cidades_nao_contadas = (cidades_nao_contadas
                               .apply(lambda row: f"{row['cidade']}-{row['estado']}", axis=1)
                               .tolist())
@@ -88,7 +90,7 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
 
   # === 5. lista de cidades prioritárias ===
   cidades_prioritarias = df_analise[df_analise["gap_expansao"]]
-  lista_cidades = cidades_prioritarias.apply(lambda x: f"{x['cidade']}-{x['estado']}", axis=1).head(10).tolist()
+  lista_cidades = cidades_prioritarias.apply(lambda x: f"{x['cidade']}-{x['estado']}", axis=1).tolist()
   texto_cidades = ", ".join(lista_cidades)
 
   resumo = {
@@ -101,21 +103,32 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
   return resumo
 
 
-def capitais (df_empresa, df_ibge):
-  capitais_brasil = [
-    "Rio Branco", "Maceió", "Macapá", "Manaus", "Salvador", "Fortaleza", "Brasília",
-    "Vitória", "Goiânia", "São Luís", "Cuiabá", "Campo Grande", "Belo Horizonte",
-    "Belém", "João Pessoa", "Curitiba", "Recife", "Teresina", "Rio De Janeiro",
-    "Natal", "Porto Alegre", "Porto Velho", "Boa Vista", "Florianópolis",
-    "São Paulo", "Aracaju", "Palmas"
-  ]
+def capitais(df_empresa, df_capitais):    
+    
+    df_capitais["cidade_estado"] = df_capitais["cidade"].str.strip() + "-" + df_capitais["estado"].str.strip()
+    df_empresa["cidade_estado"] = df_empresa["cidade"].str.strip() + "-" + df_empresa["estado"].str.strip()
 
-  cidades_filtradas = df_ibge["cidade"].dropna().unique()
-  capitais_presentes = [c for c in capitais_brasil if c in cidades_filtradas]
-  capitais_cobasi = [c for c in capitais_presentes if c in df_empresa["cidade"].unique()]
-  num_capitais_total = len(capitais_presentes)
-  num_capitais_cobasi = len(capitais_cobasi)
-  perc_capitais_cobasi = (num_capitais_cobasi / num_capitais_total * 100) if num_capitais_total > 0 else 0
 
- 
+    capitais_presentes = (
+        df_capitais.merge(
+            df_empresa[['cidade_estado']], on='cidade_estado', how='inner'
+        )
+        .drop_duplicates(subset=['cidade_estado'])
+    )
 
+    indice = (len(capitais_presentes) / len(df_capitais)) * 100 if len(df_capitais) > 0 else 0
+    
+    capitais_ausentes = df_capitais.merge(
+        df_empresa[['cidade_estado']], on='cidade_estado', how='left', indicator=True
+    )
+    capitais_ausentes = capitais_ausentes[capitais_ausentes['_merge'] == 'left_only']
+
+
+    lista_cidades_nao_contadas = capitais_ausentes["cidade_estado"].tolist()
+    texto_cidades = ", ".join(lista_cidades_nao_contadas)
+
+    return {
+        "indice": indice,
+        "cidades_ausentes": texto_cidades,
+        "numero_cidades": len(lista_cidades_nao_contadas)
+    }
