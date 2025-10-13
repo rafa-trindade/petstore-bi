@@ -7,13 +7,13 @@ from .utils import maps as maps
 from .utils import graphs as graphs
 from .utils import kpi as kpi
 
-
 @st.cache_data
 def load_data():
     df = pd.read_parquet("data/lojas.parquet")
     df = df[df["empresa"].str.lower() == "cobasi"]
     df = df.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
     return df
+
 
 def cobasi_analysis():
     df_cobasi = load_data()
@@ -25,14 +25,12 @@ def cobasi_analysis():
 
     ultima_atualizacao = df_geral.loc[0, 'ultima_atualizacao']
 
-
     col_1, col_2 = st.columns([3,1])
     with col_1:
         st.success("**Cobasi** | Visão Geral", icon=":material/store:")
     with col_2:
         st.info(f"Úlima Atualização: {ultima_atualizacao}", icon=":material/info:")
         
-
     with st.container(border=True):
 
         col1, col2, col3, col4 = st.columns([ 1, 1, 1, 1])
@@ -194,7 +192,6 @@ def cobasi_analysis():
         else:
             "-"
 
-
         okr_data = [
             {
                 "OKR": "OKR1",
@@ -202,7 +199,7 @@ def cobasi_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr1["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": "Considera cidades com Cobasi presente"
+                "Observação": "Considera cidades a nível nacional com Cobasi presente"
             },
             {
                 "OKR": "OKR2",
@@ -210,15 +207,15 @@ def cobasi_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr2["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": f"Considera capitais com Cobasi presente"
+                "Observação": f"Considera capitais regionais a nível nacional com Cobasi presente"
             },
             {
                 "OKR": "OKR3",
-                "Indicador": "Cidades exclusivas Cobasi (%)",
+                "Indicador": "Cidades > 100 mil Habitantes exclusivas Cobasi (%)",
                 "Filtro": f"{filtro}",
                 "Atual": f"",
-                "Meta": "",
-                "Observação": f""
+                "Meta": "+20%",
+                "Observação": f"Considera cidades a nível nacional com Cobasi presente"
             },
             {
                 "OKR": "OKR4",
@@ -257,7 +254,6 @@ def cobasi_analysis():
 
         df_okr = pd.DataFrame(okr_data)
 
-
         # =========================================================
         # === Seção de OKRs e métricas ===
         # =========================================================
@@ -274,7 +270,7 @@ def cobasi_analysis():
         with col_okr_2:
             st.markdown("""
             - **Objetivo 2:** Aumentar a participação nas cidades estratégicas  
-                - KR3: Dobrar o número de cidades exclusivas  
+                - KR3: Aumentar número de cidades exclusivas com > 100 mil habitantes  
                 - KR4: Ampliar presença em estados com concorrência < 2  
                 - KR5: Manter índice de saturação < 1,5  
             """)
@@ -287,6 +283,8 @@ def cobasi_analysis():
             """)
 
         st.info("Observação: Alguns valores podem variar de acordo com filtros aplicados", icon=":material/info:")
+
+
 
         st.dataframe(df_okr, use_container_width=True, hide_index=True)
 
