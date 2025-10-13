@@ -278,7 +278,7 @@ def petz_analysis():
                 - KR7: Melhorar o equilíbrio competitivo na região, visando HHI médio abaixo de 1800  
             """)
 
-        st.info("Observação: Valores modificam-se de acordo com os filtros aplicados", icon=":material/info:")
+        st.info("Observação: Alguns valores mudam conforme a região selecionada", icon=":material/info:")
 
         st.dataframe(df_okr, use_container_width=True, hide_index=True)
 
