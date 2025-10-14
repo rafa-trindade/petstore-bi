@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
-# Presença em cidades > 250 mil hab
 def popopulacao_250K (df_empresa, df_ibge, range_pop = 250000):
 
     empresa_pop_maior_250k = df_empresa[df_empresa['populacao'] > 250000][['cidade', 'estado']].drop_duplicates().shape[0]
@@ -28,27 +27,7 @@ def popopulacao_250K (df_empresa, df_ibge, range_pop = 250000):
 
 
 def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
-    """
-    Calcula o índice HHI e identifica cidades com potencial de expansão para a empresa (ex: Cobasi).
 
-    Parâmetros:
-    -----------
-    df_empresa : DataFrame
-        Dados apenas da empresa (ex: Cobasi), já filtrado para a região/estado desejado.
-    df_geral : DataFrame
-        Dados de todas as empresas (incluindo a Cobasi), já filtrado para a mesma região/estado.
-    meta_hhi : int, opcional
-        Limite de concentração de mercado (padrão = 1800).
-
-    Retorna:
-    --------
-    dict
-        Resumo com HHI geral, interpretação e lista de cidades prioritárias.
-    DataFrame
-        Detalhamento por cidade (HHI, participação Cobasi, indicador de gap).
-    """
-
-    # === 1. HHI geral do mercado ===
     participacao = df_geral["empresa"].str.lower().value_counts(normalize=True)
     hhi_geral = round((participacao ** 2).sum() * 10000, 2)
 
@@ -68,7 +47,6 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
         default="Sem Dados"
     ).item()
 
-    # === 2. HHI por cidade ===
     hhi_por_cidade = (
         df_geral.groupby(["cidade", "estado", "empresa"])
         .size()
@@ -77,18 +55,15 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
         .reset_index(name="hhi")
     )
 
-    # === participação da Cobasi ===
     participacao_cobasi = (
         df_empresa.groupby(["cidade", "estado"])["empresa"].count() /
         df_geral.groupby(["cidade", "estado"])["empresa"].count()
     ).reset_index(name="participacao_cobasi")
 
-    # === 4. calcular gaps ===
     df_analise = hhi_por_cidade.merge(participacao_cobasi, on=["cidade", "estado"], how="left")
     df_analise["participacao_cobasi"] = df_analise["participacao_cobasi"].fillna(0)  
     df_analise["gap_expansao"] = (df_analise["hhi"] > meta_hhi) & (df_analise["participacao_cobasi"] < 0.5)
 
-    # === 5. lista de cidades prioritárias ===
     cidades_prioritarias = df_analise[df_analise["gap_expansao"]]
     lista_cidades = cidades_prioritarias.apply(lambda x: f"{x['cidade']}-{x['estado']}", axis=1).tolist()
     texto_cidades = ", ".join(lista_cidades)
@@ -101,6 +76,7 @@ def hhi_regiao(df_empresa, df_geral, meta_hhi=1800):
         "cidades_prioritarias": texto_cidades
     }
     return resumo
+
 
 
 def capitais(df_empresa, df_capitais):    
@@ -134,4 +110,131 @@ def capitais(df_empresa, df_capitais):
         "indice": indice,
         "cidades_ausentes": texto_cidades,
         "numero_cidades": len(lista_cidades_nao_contadas)
+    }
+
+
+
+def cidades_exclusivas_e_sem_empresas(empresa_nome, df_todas_empresas, df_ibge, range_pop=100000):
+
+    for df in [df_todas_empresas, df_ibge]:
+        df['cidade'] = df['cidade'].astype(str).str.strip().str.upper()
+        df['estado'] = df['estado'].astype(str).str.strip().str.upper()
+    
+    empresa_nome = empresa_nome.strip().upper()
+
+    ibge_100k = df_ibge[df_ibge['populacao'] > range_pop][['cidade','estado','populacao']]
+
+    cidades_empresa = df_todas_empresas[df_todas_empresas['empresa'].str.upper() == empresa_nome][['cidade','estado']].drop_duplicates()
+    cidades_todas_empresas = df_todas_empresas[['cidade','estado']].drop_duplicates()
+
+    outras_empresas = cidades_todas_empresas.merge(
+        cidades_empresa,
+        on=['cidade','estado'],
+        how='left',
+        indicator=True
+    )
+    outras_empresas = outras_empresas[outras_empresas['_merge'] == 'left_only'][['cidade','estado']]
+
+    cidades_exclusivas = cidades_empresa.merge(
+        outras_empresas,
+        on=['cidade','estado'],
+        how='left',
+        indicator=True
+    )
+    cidades_exclusivas = cidades_exclusivas[cidades_exclusivas['_merge'] == 'left_only']
+    cidades_exclusivas = cidades_exclusivas.merge(ibge_100k, on=['cidade','estado'], how='inner')
+
+    cidades_sem_empresas = ibge_100k.merge(
+        cidades_todas_empresas,
+        on=['cidade','estado'],
+        how='left',
+        indicator=True
+    )
+    cidades_sem_empresas = cidades_sem_empresas[cidades_sem_empresas['_merge'] == 'left_only']
+
+    if len(cidades_sem_empresas) > 0:
+        lista_cidades_ausentes = ", ".join(
+            cidades_sem_empresas
+            .sort_values(by='populacao', ascending=False)
+            .apply(lambda r: f"{r['cidade']}-{r['estado']}", axis=1)
+            .tolist()
+        )
+    else:
+        lista_cidades_ausentes = "Nenhuma cidade >100k sem empresa"
+
+    return {
+        "indice": int(len(cidades_exclusivas)),
+        "cidades_ausentes": lista_cidades_ausentes,
+        "numero_cidades": int(len(cidades_sem_empresas))
+    }
+
+
+
+def indice_saturacao_expansao(empresa_nome, df_todas_empresas, df_ibge, pop_min=100_000):
+
+    for df in [df_todas_empresas, df_ibge]:
+        df['cidade'] = df['cidade'].astype(str).str.strip().str.upper()
+        df['estado'] = df['estado'].astype(str).str.strip().str.upper()
+
+    empresa_nome = empresa_nome.strip().upper()
+
+    df_ibge_filtrado = df_ibge[df_ibge['populacao'] >= pop_min].copy()
+
+    lojas_total = (
+        df_todas_empresas.groupby(['cidade', 'estado'])
+        .size()
+        .reset_index(name='lojas_total')
+    )
+
+    lojas_empresa = (
+        df_todas_empresas[df_todas_empresas['empresa'].str.upper() == empresa_nome]
+        .groupby(['cidade', 'estado'])
+        .size()
+        .reset_index(name='lojas_empresa')
+    )
+
+    df_analise = df_ibge_filtrado.merge(lojas_total, on=['cidade', 'estado'], how='left')
+    df_analise = df_analise.merge(lojas_empresa, on=['cidade', 'estado'], how='left')
+    df_analise['lojas_total'] = df_analise['lojas_total'].fillna(0)
+    df_analise['lojas_empresa'] = df_analise['lojas_empresa'].fillna(0)
+
+    indice_saturacao = df_analise['lojas_total'].mean()
+
+    def saturacao_max(pop):
+        if pop < 100_000:
+            return 1
+        elif pop <= 500_000:
+            return 2
+        else:
+            return 5
+
+    df_analise['saturacao_max'] = df_analise['populacao'].apply(saturacao_max)
+
+    df_analise['espaco_livre'] = df_analise['saturacao_max'] - df_analise['lojas_empresa']
+
+    cidades_para_expansao = df_analise[df_analise['espaco_livre'] > 0].copy()
+
+    top20 = cidades_para_expansao.sort_values(by='populacao', ascending=False).head(20)
+
+    lista_cidades_para_expansao = top20.apply(
+        lambda r: f"{r['cidade'].title()}-{r['estado'].upper()} (+{int(r['espaco_livre'])})",
+        axis=1
+    ).tolist()
+
+    cidades_para_expansao_str = ", ".join(lista_cidades_para_expansao)
+
+    numero_cidades = len(lista_cidades_para_expansao)
+
+    if indice_saturacao < 1.5:
+        interpretacao = "Mercado com baixa saturação geral - alto potencial de expansão"
+    elif indice_saturacao <= 2.5:
+        interpretacao = "Mercado moderadamente saturado - oportunidades em polos regionais"
+    else:
+        interpretacao = "Mercado altamente saturado - foco em otimização antes de novas aberturas"
+
+    return {
+        "indice": round(indice_saturacao, 2),
+        "cidades_para_expansao": cidades_para_expansao_str,
+        "numero_cidades": numero_cidades,
+        "interpretacao": interpretacao
     }

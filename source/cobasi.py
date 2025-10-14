@@ -167,9 +167,16 @@ def cobasi_analysis():
         # Capitais
         df_okr2 = kpi.capitais(df_cobasi_filtrado, df_capitais_filtrado)
 
-        # HHI
-        df_okr7 = kpi.hhi_regiao(df_cobasi_filtrado, df_filtrado_tab1)
+        # Exclusivida em cidades > 100 mil hab
+        df_okr3 = kpi.cidades_exclusivas_e_sem_empresas("cobasi", df_filtrado_tab1, df_ibge_filtrado)
 
+        # Expansão por indice de saturacao
+        df_okr4 = kpi.indice_saturacao_expansao("cobasi", df_filtrado_tab1, df_ibge_filtrado)
+
+        # HHI
+        df_okr5 = kpi.hhi_regiao(df_cobasi_filtrado, df_filtrado_tab1)
+
+    
 
         # =========================================================
         # === Tabela de OKRs ===
@@ -202,7 +209,7 @@ def cobasi_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr1['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": "Considera cidades a nível nacional com Cobasi presente"
+                "Observação": "% Cidades > 250 mil Habitantes com Cobasi presente"
             },
             {
                 "OKR": "OKR2",
@@ -210,47 +217,32 @@ def cobasi_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr2['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": f"Considera capitais regionais a nível nacional com Cobasi presente"
+                "Observação": f"% Capitais regionais com Cobasi presente"
             },
             {
                 "OKR": "OKR3",
-                "Indicador": "Cidades > 100 mil Habitantes exclusivas Cobasi (%)",
+                "Indicador": "Cidades > 100 mil Habitantes exclusivas Cobasi",
                 "Filtro": f"{filtro}",
-                "Atual": f"",
-                "Meta": "+20%",
-                "Observação": f"Considera cidades a nível nacional com Cobasi presente"
+                "Atual": f"{df_okr3['indice']}" if cidade_sel == "Todas" else "-",
+                "Meta": f"+10%" if cidade_sel == "Todas" else "-",
+                "Observação": f"Qtd. Cidades >100 mil Habitantes com presença exclusiva da Cobasi"
             },
+
             {
                 "OKR": "OKR4",
-                "Indicador": "Participação média por Estado",
+                "Indicador": "Índice de Saturação da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"",
-                "Meta": "",
-                "Observação": f""
+                "Atual": f"{df_okr4['indice']:.1f}",
+                "Meta": "<1.5",
+                "Observação": f"{df_okr4['interpretacao']}"
             },
             {
                 "OKR": "OKR5",
-                "Indicador": "Índice de Saturação",
-                "Filtro": f"{filtro}",
-                "Atual": f"",
-                "Meta": "<1.5",
-                "Observação": f""
-            },
-            {
-                "OKR": "OKR6",
-                "Indicador": "Loja por Habitantes (>pop alta/conc baixa)",
-                "Filtro": f"{filtro}",
-                "Atual": f"",
-                "Meta": "+20%",
-                "Observação": f""
-            },
-            {
-                "OKR": "OKR7",
                 "Indicador": "HHI Médio da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr7['hhi_geral']:.0f}",
+                "Atual": f"{df_okr5['hhi_geral']:.0f}",
                 "Meta": "<1800",
-                "Observação": f"Posição Atual: {df_okr7['interpretacao']}"
+                "Observação": f"Posição Atual da Região: {df_okr5['interpretacao']}"
             },
 
         ]
@@ -274,15 +266,13 @@ def cobasi_analysis():
             st.markdown("""
             - **Objetivo 2:** Aumentar a participação nas cidades estratégicas  
                 - KR3: Aumentar número de cidades exclusivas com > 100 mil habitantes  
-                - KR4: Ampliar presença em estados com concorrência < 2  
-                - KR5: Manter índice de saturação < 1,5  
             """)
 
         with col_okr_3:
             st.markdown("""
             - **Objetivo 3:** Expandir com foco em equilíbrio competitivo  
-                - KR6: Crescer lojas em cidades de alta população e baixa concorrência 
-                - KR7: Melhorar o equilíbrio competitivo na região, visando HHI médio abaixo de 1800  
+                - KR4: Expandir presença em cidades de alta população e baixa saturação (<1,5) 
+                - KR5: Melhorar o equilíbrio competitivo na região, visando HHI médio abaixo de 1800  
             """)
 
         st.info("Observação: Alguns valores podem variar de acordo com filtros aplicados", icon=":material/info:")
@@ -310,11 +300,26 @@ def cobasi_analysis():
                 | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da Cobasi |
                 """, unsafe_allow_html=True)
 
-        with st.expander("GAP-OKR7"):
+        with st.expander("GAP-OKR3"):
             st.markdown(f"""
-            |GAP| {df_okr7["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+            |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
             |----------|----------------------------------------| --------------------------|
-            | GAP-OKR7 | {df_okr7["cidades_prioritarias"]} | Cidades com alta concentração de mercado e baixa ou nula penetração da Cobasi |
+            | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
+            """, unsafe_allow_html=True)
+
+
+        with st.expander("GAP-OKR4"):
+            st.markdown(f"""
+            |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+            |----------|----------------------------------------| --------------------------|
+            | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
+            """, unsafe_allow_html=True)
+
+        with st.expander("GAP-OKR5"):
+            st.markdown(f"""
+            |GAP| {df_okr5["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+            |----------|----------------------------------------| --------------------------|
+            | GAP-OKR5 | {df_okr5["cidades_prioritarias"]} | Cidades com alta concentração de mercado e baixa ou nula penetração da Cobasi |
             """, unsafe_allow_html=True)
 
         st.markdown("---")

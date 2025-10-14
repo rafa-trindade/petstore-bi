@@ -9,7 +9,7 @@ from source.petlove import petlove_analysis
 from source.petz import petz_analysis
 from source.poppet import pop_pet_analysis
 
-from source.geral import geral_analysis
+#from source.geral import geral_analysis
 
 st.set_page_config(
     layout="wide",
@@ -55,12 +55,14 @@ df_lojas = pd.read_parquet("data/lojas.parquet")
 df_lojas = df_lojas.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
 
 empresas_unicas = df_lojas['empresa'].str.title().sort_values().unique().tolist()
-opcoes = ["Todas"] + empresas_unicas
+#opcoes = ["Todas"] + empresas_unicas
+opcoes = empresas_unicas
+
     
 empresa = st.sidebar.selectbox("Selecione Empresa para Análise:", opcoes)
 
 empresa_source = {
-    "Todas": geral_analysis,
+#    "Todas": geral_analysis,
     "Cobasi": cobasi_analysis,
     "Petcamp": petcamp_analysis,
     "Petland": petland_analysis,
@@ -69,7 +71,8 @@ empresa_source = {
     "Pop Pet Center": pop_pet_analysis
 }
 
-func = empresa_source.get(empresa, geral_analysis)
+#func = empresa_source.get(empresa, geral_analysis)
+func = empresa_source.get(empresa)
 func()
 
 registros = str(len(df_lojas))
