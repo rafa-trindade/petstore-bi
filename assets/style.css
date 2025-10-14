@@ -1,0 +1,36 @@
+header {
+  visibility: hidden;
+}
+
+footer {
+  visibility: hidden;
+}
+
+.st-emotion-cache-zy6yx3 {
+  padding: 1.5em 5rem 1rem;
+
+}
+
+/* Estilo para garantir que o container principal também tenha o mesmo fundo */
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentInfo"]) {
+  background-color: #3A7C89 !important;
+  /* Cor de fundo para o container principal de st.info */
+  color: #fff !important;
+  /* Cor do texto para o container principal de st.info */
+}
+
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]) {
+  background-color: #123F5A !important;
+  /* Cor de fundo para o container principal de st.success */
+  color: #fff !important;
+  /* Cor do texto para o container principal de st.success */
+}
+
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]) {
+  background-color: #418B9A !important;
+  /* Cor de fundo para o container principal de st.error */
+  color: #fff !important;
+  /* Cor do texto para o container principal de st.error */
+}

@@ -149,6 +149,10 @@ def cobasi_analysis():
     if df_filtrado_tab1.empty:
         st.warning("Sem dados para calcular indicadores de concorrência.")
     else:
+        df_filtrado_tab1 = df_filtrado_tab1.copy()
+        df_cobasi_filtrado = df_cobasi_filtrado.copy()
+        df_ibge_filtrado = df_ibge_filtrado.copy()
+
         df_filtrado_tab1["cidade"] = df_filtrado_tab1["cidade"].str.title().str.strip()
         df_cobasi_filtrado["cidade"] = df_cobasi_filtrado["cidade"].str.title().str.strip()
         df_ibge_filtrado["cidade"] = df_ibge_filtrado["cidade"].str.title().str.strip()
@@ -160,7 +164,6 @@ def cobasi_analysis():
         # Presença em cidades > 250 mil hab
         df_okr1 = kpi.popopulacao_250K(df_cobasi_filtrado, df_ibge_filtrado)
         
-
         # Capitais
         df_okr2 = kpi.capitais(df_cobasi_filtrado, df_capitais_filtrado)
 
@@ -188,7 +191,7 @@ def cobasi_analysis():
                
 
         if cidade_sel == "Todas":
-            f"{df_okr1["indice"]:.1f}%"
+            f"{df_okr1['indice']:.1f}%"
         else:
             "-"
 
@@ -197,7 +200,7 @@ def cobasi_analysis():
                 "OKR": "OKR1",
                 "Indicador": "Presença em Cidades > 250 mil Habitantes",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr1["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
+                "Atual": f"{df_okr1['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
                 "Observação": "Considera cidades a nível nacional com Cobasi presente"
             },
@@ -205,7 +208,7 @@ def cobasi_analysis():
                 "OKR": "OKR2",
                 "Indicador": "Cobertura Capitais Regionais",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr2["indice"]:.1f}%" if cidade_sel == "Todas" else "-",
+                "Atual": f"{df_okr2['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
                 "Observação": f"Considera capitais regionais a nível nacional com Cobasi presente"
             },
@@ -245,9 +248,9 @@ def cobasi_analysis():
                 "OKR": "OKR7",
                 "Indicador": "HHI Médio da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr7["hhi_geral"]:.0f}",
+                "Atual": f"{df_okr7['hhi_geral']:.0f}",
                 "Meta": "<1800",
-                "Observação": f"Posição Atual: {df_okr7["interpretacao"]}"
+                "Observação": f"Posição Atual: {df_okr7['interpretacao']}"
             },
 
         ]
@@ -286,7 +289,7 @@ def cobasi_analysis():
 
 
 
-        st.dataframe(df_okr, use_container_width=True, hide_index=True)
+        st.dataframe(df_okr, width="stretch", height="auto", hide_index=True)
 
 
         st.success("Análise de Expansão (GAP)", icon=":material/map:")

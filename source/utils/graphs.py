@@ -1,78 +1,86 @@
-import plotly.express as px
+import pandas as pd
+import plotly.graph_objects as go
+from itertools import product
 import plotly.express as px
 
 def grafico_concorrencia_mini(df, empresa_sel, empresas_disponiveis, empresa):
-    df["empresa_clean"] = df["empresa"].str.strip().str.title()
-    
+
+    df['empresa_clean'] = df['empresa'].str.strip().str.title()
+
     paleta = px.colors.sequential.Darkmint_r
     cores = {}
 
-    # Usa a variável 'empresa' passada como parâmetro
     cores[empresa.title()] = paleta[0]
 
-    if empresa_sel != "Todas":
+    if empresa_sel != "Todas" and empresa_sel.lower() != empresa.lower():
         cores[empresa_sel.title()] = paleta[2]
-        empresas_restantes = [
-            e for e in empresas_disponiveis
-            if e.lower() != empresa.lower() and e.lower() != empresa_sel.lower()
-        ]
-    else:
-        empresas_restantes = [
-            e for e in empresas_disponiveis
-            if e.lower() != empresa.lower()
-        ]
 
+    empresas_restantes = [e for e in empresas_disponiveis if e.lower() not in [empresa.lower(), empresa_sel.lower()]]
     for i, e in enumerate(empresas_restantes):
-        cor_index = i + 1
-        if cor_index >= len(paleta):
-            cor_index = cor_index % len(paleta)
+        cor_index = (i + 1) % len(paleta)
         cores[e.title()] = paleta[cor_index]
 
-    # Agrupa os dados
-    df_grafico = df.groupby(["cidade", "empresa_clean"]).size().reset_index(name="num_lojas")
+    df_totais_cidade = df.groupby("cidade")["empresa_clean"].count().reset_index()
+    top_cidades = df_totais_cidade.nlargest(5, "empresa_clean")["cidade"]
 
-    # --- Filtro principal: empresa base + empresa selecionada ---
-    if empresa_sel != "Todas":
-        df_grafico = df_grafico[df_grafico["empresa_clean"].str.lower().isin([empresa.lower(), empresa_sel.lower()])]
-    else:
-        # Se "Todas", mostra a base e todas as demais
-        df_grafico = df_grafico[df_grafico["empresa_clean"].isin(empresas_disponiveis)]
+    df = df[df['cidade'].isin(top_cidades)]
 
-    # Top 5 cidades
-    df_totais_cidade = df_grafico.groupby("cidade")["num_lojas"].sum().reset_index()
-    df_totais_cidade = df_totais_cidade.rename(columns={"num_lojas": "total_lojas"})
-    top_cidades = df_totais_cidade.nlargest(5, 'total_lojas')['cidade']
-
-    df_grafico = df_grafico[df_grafico['cidade'].isin(top_cidades)]
-
-    # --- Gráfico ---
-    fig = px.bar(
-        df_grafico,
-        x='cidade',
-        y='num_lojas',
-        color='empresa_clean',
-        text='num_lojas',
-        color_discrete_map=cores
+    combinacoes = pd.DataFrame(list(product(top_cidades, [e.title() for e in empresas_disponiveis])),
+                               columns=['cidade', 'empresa_clean'])
+    
+    df_grafico = combinacoes.merge(
+        df.groupby(['cidade','empresa_clean']).size().reset_index(name='num_lojas'),
+        on=['cidade','empresa_clean'],
+        how='left'
     )
+    df_grafico['num_lojas'] = df_grafico['num_lojas'].fillna(0)
 
-    cidade_order = df_totais_cidade.set_index('cidade').loc[top_cidades]['total_lojas'].sort_values(ascending=False).index
+    cidade_order = df_grafico.groupby('cidade')['num_lojas'].sum().sort_values(ascending=False).index
+
+    fig = go.Figure()
+
+    empresa_base_y = df_grafico[df_grafico['empresa_clean']==empresa.title()].set_index('cidade').reindex(cidade_order, fill_value=0)['num_lojas']
+    fig.add_trace(go.Bar(
+        x=cidade_order,
+        y=empresa_base_y,
+        name=empresa.title(),
+        marker_color=cores[empresa.title()],
+        text=empresa_base_y,
+        textposition='auto'
+    ))
+
+    if empresa_sel != "Todas" and empresa_sel.lower() != empresa.lower():
+        empresa_sel_y = df_grafico[df_grafico['empresa_clean']==empresa_sel.title()].set_index('cidade').reindex(cidade_order, fill_value=0)['num_lojas']
+        fig.add_trace(go.Bar(
+            x=cidade_order,
+            y=empresa_sel_y,
+            name=empresa_sel.title(),
+            marker_color=cores[empresa_sel.title()],
+            text=empresa_sel_y,
+            textposition='auto'
+        ))
+
+    for e in empresas_restantes:
+        e_y = df_grafico[df_grafico['empresa_clean']==e.title()].set_index('cidade').reindex(cidade_order, fill_value=0)['num_lojas']
+        fig.add_trace(go.Bar(
+            x=cidade_order,
+            y=e_y,
+            name=e.title(),
+            marker_color=cores[e.title()],
+            text=e_y,
+            textposition='inside',
+            textangle=0         
+        ))
+
     fig.update_layout(
-        xaxis=dict(
-            categoryorder='array',
-            categoryarray=cidade_order,
-            title=None,        
-            showticklabels=True  
-        ),
-        yaxis=dict(
-            title="Número de Lojas"
-        ),
+        barmode='stack',
+        xaxis_title=None,
+        yaxis_title='Número de Lojas',
         width=900,
         height=400,
-        legend_title_text='',
         margin=dict(l=0, r=0, t=0, b=0),
-        legend=dict(x=0.9, y=1),
-    )
+        legend=dict(x=0.9, y=1)
 
-    fig.update_traces(marker_line_color="black", marker_line_width=0.2)
+    )
 
     return fig

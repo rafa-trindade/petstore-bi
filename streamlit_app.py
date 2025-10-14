@@ -9,8 +9,6 @@ from source.petlove import petlove_analysis
 from source.petz import petz_analysis
 from source.poppet import pop_pet_analysis
 
-
-
 from source.geral import geral_analysis
 
 st.set_page_config(
@@ -18,6 +16,12 @@ st.set_page_config(
     page_title="petstore-bi | Rafael Trindade ", 
     initial_sidebar_state="expanded", 
     page_icon="🗺️")
+
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+local_css("assets/style.css")
 
 
 st.sidebar.markdown(
@@ -47,10 +51,8 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-
 df_lojas = pd.read_parquet("data/lojas.parquet")
 df_lojas = df_lojas.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
-
 
 empresas_unicas = df_lojas['empresa'].str.title().sort_values().unique().tolist()
 opcoes = ["Todas"] + empresas_unicas
@@ -81,6 +83,31 @@ col2_side.markdown('<h5 style="text-align: end; margin-bottom: -25px;">' + ultim
 
 st.sidebar.markdown("---")
 
-util.aplicar_estilo()
+st.markdown(
+    """
+    <div style="
+        position: fixed; 
+        bottom: 0;
+        left: 0;
+        right: 0; 
+        width: 100%; 
+        background-color: #c6d0d2; 
+        padding: 2.5px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        color: #2B5482; 
+        font-size: 14px;
+        gap: 8px
+    ">
+        <span>Developed by </span>
+        <a href="https://github.com/rafa-trindade" target="_blank">
+            <img style="border-radius: 4px;" src="https://img.shields.io/badge/-Rafael%20Trindade-123F5A?style=flat-square&logo=github&logoColor=E4E3E3" alt="GitHub Badge">
+        </a>
+    </div>
+
+    """,
+    unsafe_allow_html=True
+)
 
 
