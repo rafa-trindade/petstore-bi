@@ -10,13 +10,13 @@ from .utils import kpi as kpi
 @st.cache_data
 def load_data():
     df = pd.read_parquet("data/lojas.parquet")
-    df = df[df["empresa"].str.lower() == "PetCamp"]
+    df = df[df["empresa"].str.lower() == "petcamp"]
     df = df.dropna(subset=["latitude", "longitude", "populacao", "renda_domiciliar_per_capita"])
     return df
 
 
-def petcamp_analysis    ():
-    df_PetCamp = load_data()
+def petcamp_analysis():
+    df_petcamp = load_data()
     df_ibge = pd.read_csv("data/utils/ibge_data.csv", sep=";", encoding="utf-8-sig") 
     df_capitais = pd.read_csv("data/utils/capitais.csv", sep=";", encoding="utf-8-sig") 
 
@@ -87,18 +87,18 @@ def petcamp_analysis    ():
         df_filtrado_pop = df_filtrado_pop[df_filtrado_pop["cidade"] == cidade_sel]
 
 
-    df_PetCamp_filtrado = df_filtrado_tab1[df_filtrado_tab1["empresa"].str.lower() == "PetCamp"]
-    df_PetCamp_filtrado_pop = df_filtrado_pop[df_filtrado_pop["empresa"].str.lower() == "PetCamp"]
-    df_outras = df_filtrado_tab1[df_filtrado_tab1["empresa"].str.lower() != "PetCamp"]
-    df_outras_pop = df_filtrado_pop[df_filtrado_pop["empresa"].str.lower() != "PetCamp"]
+    df_petcamp_filtrado = df_filtrado_tab1[df_filtrado_tab1["empresa"].str.lower() == "petcamp"]
+    df_petcamp_filtrado_pop = df_filtrado_pop[df_filtrado_pop["empresa"].str.lower() == "petcamp"]
+    df_outras = df_filtrado_tab1[df_filtrado_tab1["empresa"].str.lower() != "petcamp"]
+    df_outras_pop = df_filtrado_pop[df_filtrado_pop["empresa"].str.lower() != "petcamp"]
 
 
-    total_lojas_PetCamp = len(df_PetCamp_filtrado)
+    total_lojas_petcamp = len(df_petcamp_filtrado)
     total_lojas_outras = len(df_outras)
 
-    total_lojas_PetCamp_pop = len(df_PetCamp_filtrado_pop)
+    total_lojas_petcamp_pop = len(df_petcamp_filtrado_pop)
     total_lojas_outras_pop = len(df_outras_pop)
-    total_lojas_pop = total_lojas_PetCamp_pop + total_lojas_outras_pop
+    total_lojas_pop = total_lojas_petcamp_pop + total_lojas_outras_pop
 
 
     col_m5, col_m6, col_m7 = st.columns([6, 4.5, 2.5])
@@ -110,7 +110,7 @@ def petcamp_analysis    ():
                 df_filtrado_pop,
                 empresa_sel,
                 df_filtrado_pop["empresa"].str.title().unique().tolist(),
-                empresa = "PetCamp"
+                empresa = "petcamp"
             )
             st.plotly_chart(fig_graph_tab1, use_container_width=True)
 
@@ -124,7 +124,7 @@ def petcamp_analysis    ():
                 cidade_sel,
                 empresa_sel,
                 df_filtrado_pop["empresa"].str.title().unique().tolist(),
-                empresa = "PetCamp"
+                empresa = "petcamp"
             )
             if fig_tab1 is not None:
                 maps.geojson_maps(fig_tab1, regiao_sel, estado_sel)
@@ -133,15 +133,15 @@ def petcamp_analysis    ():
 
   
     with col_m7:
-        col_m7.success(f"Lojas PetCamp: {total_lojas_PetCamp_pop}", icon=":material/store:")
+        col_m7.success(f"Lojas PetCamp: {total_lojas_petcamp_pop}", icon=":material/store:")
         col_m7.info(f"Outras Empresas: {total_lojas_outras_pop}", icon=":material/store:")
         col_m7.error(f"Total de Lojas: {total_lojas_pop}", icon=":material/store:")
 
         participacao = df_filtrado_tab1["empresa"].str.lower().value_counts(normalize=True)
-        participacao_PetCamp = participacao.get("PetCamp", 0) * 100
+        participacao_petcamp = participacao.get("petcamp", 0) * 100
         
         if not df_filtrado_tab1.empty:
-            col_m7.success(f"PetCamp: {participacao_PetCamp:.1f}% de participação no mercado")
+            col_m7.success(f"PetCamp: {participacao_petcamp:.1f}% de participação no mercado")
         else:
             col_m7.success("Sem dados para os filtros selecionados.")
 
@@ -150,11 +150,11 @@ def petcamp_analysis    ():
         st.warning("Sem dados para calcular indicadores de concorrência.")
     else:
         df_filtrado_tab1 = df_filtrado_tab1.copy()
-        df_PetCamp_filtrado = df_PetCamp_filtrado.copy()
+        df_petcamp_filtrado = df_petcamp_filtrado.copy()
         df_ibge_filtrado = df_ibge_filtrado.copy()
 
         df_filtrado_tab1["cidade"] = df_filtrado_tab1["cidade"].str.title().str.strip()
-        df_PetCamp_filtrado["cidade"] = df_PetCamp_filtrado["cidade"].str.title().str.strip()
+        df_petcamp_filtrado["cidade"] = df_petcamp_filtrado["cidade"].str.title().str.strip()
         df_ibge_filtrado["cidade"] = df_ibge_filtrado["cidade"].str.title().str.strip()
 
         # =========================================================
@@ -162,19 +162,19 @@ def petcamp_analysis    ():
         # =========================================================
 
         # Presença em cidades > 250 mil hab
-        df_okr1 = kpi.popopulacao_250K(df_PetCamp_filtrado, df_ibge_filtrado)
+        df_okr1 = kpi.popopulacao_250K(df_petcamp_filtrado, df_ibge_filtrado)
         
         # Capitais
-        df_okr2 = kpi.capitais(df_PetCamp_filtrado, df_capitais_filtrado)
+        df_okr2 = kpi.capitais(df_petcamp_filtrado, df_capitais_filtrado)
 
         # Exclusivida em cidades > 100 mil hab
-        df_okr3 = kpi.cidades_exclusivas_e_sem_empresas("PetCamp", df_filtrado_tab1, df_ibge_filtrado)
+        df_okr3 = kpi.cidades_exclusivas_e_sem_empresas("petcamp", df_filtrado_tab1, df_ibge_filtrado)
 
         # Expansão por indice de saturacao
-        df_okr4 = kpi.indice_saturacao_expansao("PetCamp", df_filtrado_tab1, df_ibge_filtrado)
+        df_okr4 = kpi.indice_saturacao_expansao("petcamp", df_filtrado_tab1, df_ibge_filtrado)
 
         # HHI
-        df_okr5 = kpi.hhi_regiao(df_PetCamp_filtrado, df_filtrado_tab1)
+        df_okr5 = kpi.hhi_regiao(df_petcamp_filtrado, df_filtrado_tab1)
 
     
 
@@ -232,8 +232,8 @@ def petcamp_analysis    ():
                 "OKR": "OKR4",
                 "Indicador": "Índice de Saturação da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr4['indice']:.1f}",
-                "Meta": "<1.5",
+                "Atual": f"{df_okr4['indice']:.1f}" if cidade_sel == "Todas" else "-",
+                "Meta": f"<1.5" if cidade_sel == "Todas" else "-",
                 "Observação": f"{df_okr4['interpretacao']}"
             },
             {
@@ -284,7 +284,8 @@ def petcamp_analysis    ():
 
         st.success("Análise de Expansão (GAP)", icon=":material/map:")
 
-        if df_okr1["indice"] != 100:
+        col_values = df_okr1.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
             with st.expander("GAP-OKR1"):
                 st.markdown(f"""
                 |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
@@ -292,7 +293,8 @@ def petcamp_analysis    ():
                 | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da PetCamp |
                 """, unsafe_allow_html=True)
 
-        if df_okr2["indice"] != 100:
+        col_values = df_okr2.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
             with st.expander("GAP-OKR2"):
                 st.markdown(f"""
                 |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
@@ -300,20 +302,23 @@ def petcamp_analysis    ():
                 | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da PetCamp |
                 """, unsafe_allow_html=True)
 
-        with st.expander("GAP-OKR3"):
-            st.markdown(f"""
-            |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
-            """, unsafe_allow_html=True)
+        col_values = df_okr3.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+            with st.expander("GAP-OKR3"):
+                st.markdown(f"""
+                |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
+                """, unsafe_allow_html=True)
 
-
-        with st.expander("GAP-OKR4"):
-            st.markdown(f"""
-            |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
-            """, unsafe_allow_html=True)
+        col_values = df_okr4.get("cidades_para_expansao")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+            with st.expander("GAP-OKR4"):
+                st.markdown(f"""
+                |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
+                """, unsafe_allow_html=True)
 
         with st.expander("GAP-OKR5"):
             st.markdown(f"""

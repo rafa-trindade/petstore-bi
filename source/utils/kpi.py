@@ -160,7 +160,7 @@ def cidades_exclusivas_e_sem_empresas(empresa_nome, df_todas_empresas, df_ibge, 
             .tolist()
         )
     else:
-        lista_cidades_ausentes = "Nenhuma cidade >100k sem empresa"
+        lista_cidades_ausentes = None
 
     return {
         "indice": int(len(cidades_exclusivas)),
@@ -216,10 +216,10 @@ def indice_saturacao_expansao(empresa_nome, df_todas_empresas, df_ibge, pop_min=
 
     top20 = cidades_para_expansao.sort_values(by='populacao', ascending=False).head(20)
 
-    lista_cidades_para_expansao = top20.apply(
-        lambda r: f"{r['cidade'].title()}-{r['estado'].upper()} (+{int(r['espaco_livre'])})",
-        axis=1
-    ).tolist()
+    lista_cidades_para_expansao = [
+        f"{str(row['cidade']).title()}-{str(row['estado']).upper()} (+{int(row['espaco_livre'])})"
+        for _, row in top20.iterrows()
+    ]
 
     cidades_para_expansao_str = ", ".join(lista_cidades_para_expansao)
 

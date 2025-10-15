@@ -232,8 +232,8 @@ def cobasi_analysis():
                 "OKR": "OKR4",
                 "Indicador": "Índice de Saturação da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr4['indice']:.1f}",
-                "Meta": "<1.5",
+                "Atual": f"{df_okr4['indice']:.1f}" if cidade_sel == "Todas" else "-",
+                "Meta": f"<1.5" if cidade_sel == "Todas" else "-",
                 "Observação": f"{df_okr4['interpretacao']}"
             },
             {
@@ -284,7 +284,8 @@ def cobasi_analysis():
 
         st.success("Análise de Expansão (GAP)", icon=":material/map:")
 
-        if df_okr1["indice"] != 100:
+        col_values = df_okr1.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
             with st.expander("GAP-OKR1"):
                 st.markdown(f"""
                 |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
@@ -292,7 +293,8 @@ def cobasi_analysis():
                 | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da Cobasi |
                 """, unsafe_allow_html=True)
 
-        if df_okr2["indice"] != 100:
+        col_values = df_okr2.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
             with st.expander("GAP-OKR2"):
                 st.markdown(f"""
                 |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
@@ -300,20 +302,23 @@ def cobasi_analysis():
                 | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da Cobasi |
                 """, unsafe_allow_html=True)
 
-        with st.expander("GAP-OKR3"):
-            st.markdown(f"""
-            |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
-            """, unsafe_allow_html=True)
+        col_values = df_okr3.get("cidades_ausentes")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+            with st.expander("GAP-OKR3"):
+                st.markdown(f"""
+                |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
+                """, unsafe_allow_html=True)
 
-
-        with st.expander("GAP-OKR4"):
-            st.markdown(f"""
-            |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
-            """, unsafe_allow_html=True)
+        col_values = df_okr4.get("cidades_para_expansao")
+        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+            with st.expander("GAP-OKR4"):
+                st.markdown(f"""
+                |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
+                """, unsafe_allow_html=True)
 
         with st.expander("GAP-OKR5"):
             st.markdown(f"""
