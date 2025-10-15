@@ -209,7 +209,7 @@ def petcamp_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr1['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": "% Cidades > 250 mil Habitantes com PetCamp presente"
+                "Observação": "% Cidades > 250 mil Habitantes com PetCamp presente" if cidade_sel == "Todas" else "Selecione uma Região ou Estado"
             },
             {
                 "OKR": "OKR2",
@@ -217,7 +217,7 @@ def petcamp_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr2['indice']:.1f}%" if cidade_sel == "Todas" else "-",
                 "Meta": f"100%" if cidade_sel == "Todas" else "-",
-                "Observação": f"% Capitais regionais com PetCamp presente"
+                "Observação": f"% Capitais regionais com PetCamp presente" if cidade_sel == "Todas" else "Selecione uma Região ou Estado"
             },
             {
                 "OKR": "OKR3",
@@ -225,7 +225,7 @@ def petcamp_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr3['indice']}" if cidade_sel == "Todas" else "-",
                 "Meta": f"+10%" if cidade_sel == "Todas" else "-",
-                "Observação": f"Qtd. Cidades >100 mil Habitantes com presença exclusiva da PetCamp"
+                "Observação": f"Qtd. Cidades >100 mil Habitantes com presença exclusiva da PetCamp" if cidade_sel == "Todas" else "Selecione uma Região ou Estado"
             },
 
             {
@@ -234,15 +234,15 @@ def petcamp_analysis():
                 "Filtro": f"{filtro}",
                 "Atual": f"{df_okr4['indice']:.1f}" if cidade_sel == "Todas" else "-",
                 "Meta": f"<1.5" if cidade_sel == "Todas" else "-",
-                "Observação": f"{df_okr4['interpretacao']}"
+                "Observação": f"{df_okr4['interpretacao']}" if cidade_sel == "Todas" else "Selecione uma Região ou Estado"
             },
             {
                 "OKR": "OKR5",
                 "Indicador": "HHI Médio da Região",
                 "Filtro": f"{filtro}",
-                "Atual": f"{df_okr5['hhi_geral']:.0f}",
-                "Meta": "<1800",
-                "Observação": f"Posição Atual da Região: {df_okr5['interpretacao']}"
+                "Atual": f"{df_okr5['hhi_geral']:.0f}" if cidade_sel == "Todas" else "-",
+                "Meta": f"<1.800" if cidade_sel == "Todas" else "-",
+                "Observação": f"Posição Atual da Região: {df_okr5['interpretacao']}" if cidade_sel == "Todas" else "Selecione uma Região ou Estado"
             },
 
         ]
@@ -284,8 +284,7 @@ def petcamp_analysis():
 
         st.success("Análise de Expansão (GAP)", icon=":material/map:")
 
-        col_values = df_okr1.get("cidades_ausentes")
-        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+        if cidade_sel == "Todas":     
             with st.expander("GAP-OKR1"):
                 st.markdown(f"""
                 |GAP| {df_okr1["numero_cidades"]} Cidades - Região: {filtro}  | Indicador |
@@ -293,8 +292,8 @@ def petcamp_analysis():
                 | GAP-OKR1 | {df_okr1["cidades_ausentes"]} |Cidades >250 mil habitantes sem presença da PetCamp |
                 """, unsafe_allow_html=True)
 
-        col_values = df_okr2.get("cidades_ausentes")
-        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+        if cidade_sel == "Todas":  
+
             with st.expander("GAP-OKR2"):
                 st.markdown(f"""
                 |GAP| {df_okr2["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
@@ -302,8 +301,7 @@ def petcamp_analysis():
                 | GAP-OKR2 | {df_okr2["cidades_ausentes"]} | Capitais Regionais sem presença da PetCamp |
                 """, unsafe_allow_html=True)
 
-        col_values = df_okr3.get("cidades_ausentes")
-        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+       
             with st.expander("GAP-OKR3"):
                 st.markdown(f"""
                 |GAP| {df_okr3["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
@@ -311,8 +309,7 @@ def petcamp_analysis():
                 | GAP-OKR3 | {df_okr3["cidades_ausentes"]} | Cidades >100 mil habitantes sem registro de empresas ativas  |
                 """, unsafe_allow_html=True)
 
-        col_values = df_okr4.get("cidades_para_expansao")
-        if col_values is not None and col_values not in [None, ""] and str(col_values).strip() != "":     
+
             with st.expander("GAP-OKR4"):
                 st.markdown(f"""
                 |GAP| {df_okr4["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
@@ -320,11 +317,15 @@ def petcamp_analysis():
                 | GAP-OKR4 | {df_okr4["cidades_para_expansao"]} | Cidades >100 mil habitantes prioritárias para expansão - maior população e baixa saturação (<1.5) |
                 """, unsafe_allow_html=True)
 
-        with st.expander("GAP-OKR5"):
-            st.markdown(f"""
-            |GAP| {df_okr5["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
-            |----------|----------------------------------------| --------------------------|
-            | GAP-OKR5 | {df_okr5["cidades_prioritarias"]} | Cidades com alta concentração de mercado e baixa ou nula penetração da PetCamp |
-            """, unsafe_allow_html=True)
+
+            with st.expander("GAP-OKR5"):
+                st.markdown(f"""
+                |GAP| {df_okr5["numero_cidades"]} Cidades - Região: {filtro}|Indicador |
+                |----------|----------------------------------------| --------------------------|
+                | GAP-OKR5 | {df_okr5["cidades_prioritarias"]} | Cidades com alta concentração de mercado e baixa ou nula penetração da PetCamp |
+                """, unsafe_allow_html=True)
+
+        else:
+            st.error("Selecione uma Região ou Estado", icon=":material/info:")
 
         st.markdown("---")
