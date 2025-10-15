@@ -86,3 +86,12 @@ Atualmente, o projeto coleta dados públicos das seguintes redes para estudo:
 * **Petland**
 * **Petlove**
 * **Petz**
+
+---
+
+## 📸 Capturas de Tela
+
+![Painel Principal](docs/petstore-bi-000.png)
+
+#### - Fitro Região
+![Cadastro Hospedagem](docs/petstore-bi-001.png)
