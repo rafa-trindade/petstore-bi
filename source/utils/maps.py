@@ -99,7 +99,6 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
         )
 
     if not df_empresa.empty:
-        # Borda branca simulada
         fig.add_scattermapbox(
             lat=df_empresa["latitude"],
             lon=df_empresa["longitude"],
@@ -109,7 +108,6 @@ def mapa_geral_mini(df, estado_sel, cidade_sel, empresa_sel, empresas_disponivei
             name=""
         )
 
-        # Marcador colorido sobre a borda
         fig.add_scattermapbox(
             lat=df_empresa["latitude"],
             lon=df_empresa["longitude"],
@@ -171,7 +169,7 @@ def geojson_maps(fig, reg, est):
     ))
 
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), legend=dict(x=0, y=1))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True})
 
 
 def calcula_centro_mapa(df_filtrado, estado_sel, cidade_sel):
