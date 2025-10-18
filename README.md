@@ -91,7 +91,17 @@ Atualmente, o projeto coleta dados públicos das seguintes redes para estudo:
 
 ## 📸 Capturas de Tela
 
-![Painel Principal](docs/petstore-bi-000.png)
+#### - Cobasi - Região: Brasil
+![Cobasi](docs/cobasi-brasil.png)
 
-#### - Fitro Região
-![Cadastro Hospedagem](docs/petstore-bi-001.png)
+#### - PetCamp - Região: Sudeste
+![PetCamp](docs/petcamp-sudeste.png)
+
+#### - Petland - Região: Sul
+![Petland](docs/petland-sul.png)
+
+#### - Petlove - Estado: SP
+![Petlove](docs/petlove-sp.png)
+
+#### - Petz - Região: Nordeste
+![Petz](docs/petz-nordeste.png)
